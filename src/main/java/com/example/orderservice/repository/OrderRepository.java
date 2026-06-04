@@ -1,15 +1,15 @@
 package com.example.orderservice.repository;
 
-import com.example.orderservice.model.Order;
+import com.example.orderservice.entity.OrderEntity;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface OrderRepository {
 
-    Order getOrderById(UUID id);
-    List<Order> getOrders();
-    Order createOrder(Order newOrder);
-    Order updateOrder(Order updatedOrder);
+    OrderEntity getOrderById(UUID id);
+    List<OrderEntity> getOrders();
+    OrderEntity createOrder(OrderEntity newOrder);
+    OrderEntity updateOrder(OrderEntity updatedOrder);
     void deleteOrder(UUID id);
 }

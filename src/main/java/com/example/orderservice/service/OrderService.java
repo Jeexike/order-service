@@ -1,36 +1,16 @@
 package com.example.orderservice.service;
 
-import com.example.orderservice.model.Order;
-import com.example.orderservice.repository.OrderRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import com.example.orderservice.dto.OrderRequest;
+import com.example.orderservice.dto.OrderResponse;
 
 import java.util.List;
 import java.util.UUID;
 
-@Service
-@RequiredArgsConstructor
-public class OrderService {
+public interface OrderService {
 
-    private final OrderRepository orderRepository;
-
-    public Order getOrderById(UUID id) {
-        return orderRepository.getOrderById(id);
-    }
-
-    public List<Order> getOrders() {
-        return orderRepository.getOrders();
-    }
-
-    public Order createOrder(Order order) {
-        return orderRepository.createOrder(order);
-    }
-
-    public Order updateOrder(Order order) {
-        return orderRepository.updateOrder(order);
-    }
-
-    public void deleteOrder(UUID id) {
-        orderRepository.deleteOrder(id);
-    }
+    OrderResponse getOrderById(UUID id);
+    List<OrderResponse> getOrders();
+    OrderResponse createOrder(OrderRequest orderRequest);
+    OrderResponse updateOrder(UUID id, OrderRequest orderRequest);
+    void deleteOrder(UUID id);
 }
