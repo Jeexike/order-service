@@ -6,7 +6,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -32,15 +31,12 @@ public class OrderEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @NotBlank(message = "Name cannot be blank")
     @Column(name = "name")
     private String name;
 
-    @NotBlank(message = "Source cannot be blank")
     @Column(name = "source")
     private String source;
 
-    @NotBlank(message = "Destination cannot be blank")
     @Column(name = "destination")
     private String destination;
 

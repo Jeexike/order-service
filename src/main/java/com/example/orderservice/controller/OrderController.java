@@ -3,6 +3,12 @@ package com.example.orderservice.controller;
 import com.example.orderservice.dto.OrderRequest;
 import com.example.orderservice.dto.OrderResponse;
 import com.example.orderservice.service.OrderService;
+import com.example.orderservice.validator.OrderValidator;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,31 +26,65 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/orders")
 @RequiredArgsConstructor
+@Tag(name = "Orders", description = "Операции с заказами")
 public class OrderController {
+
     private final OrderService orderService;
+    private final OrderValidator  orderValidator;
 
     @GetMapping("/{id}")
-    public OrderResponse getOrder(@PathVariable UUID id) {
+    @Operation(summary = "Получить заказ по ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Заказ найден"),
+            @ApiResponse(responseCode = "404", description = "Заказ не найден")
+    })
+    public OrderResponse getOrder(
+            @Parameter(description = "ID заказа") @PathVariable UUID id) {
+        orderValidator.validateId(id);
         return orderService.getOrderById(id);
     }
 
     @GetMapping
-    public List<OrderResponse> getOrders() throws InterruptedException {
+    @Operation(summary = "Получить список всех заказов")
+    public List<OrderResponse> getOrders() {
         return orderService.getOrders();
     }
 
     @PostMapping
+    @Operation(summary = "Создать новый заказ")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Заказ создан"),
+            @ApiResponse(responseCode = "400", description = "Невалидные данные")
+    })
     public OrderResponse createOrder(@Valid @RequestBody OrderRequest orderRequest) {
+        orderValidator.validateOrderRequest(orderRequest);
         return orderService.createOrder(orderRequest);
     }
 
     @PutMapping("/{id}")
-    public OrderResponse updateOrder(@PathVariable UUID id, @Valid @RequestBody OrderRequest orderRequest) {
+    @Operation(summary = "Обновить существующий заказ")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Заказ обновлён"),
+            @ApiResponse(responseCode = "404", description = "Заказ не найден"),
+            @ApiResponse(responseCode = "400", description = "Невалидные данные")
+    })
+    public OrderResponse updateOrder(
+            @Parameter(description = "ID заказа") @PathVariable UUID id,
+            @Valid @RequestBody OrderRequest orderRequest) {
+        orderValidator.validateId(id);
+        orderValidator.validateOrderRequest(orderRequest);
         return orderService.updateOrder(id, orderRequest);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteOrder(@Valid @PathVariable UUID id) {
+    @Operation(summary = "Удалить заказ")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Заказ удалён"),
+            @ApiResponse(responseCode = "404", description = "Заказ не найден")
+    })
+    public void deleteOrder(
+            @Parameter(description = "ID заказа") @PathVariable UUID id) {
+        orderValidator.validateId(id);
         orderService.deleteOrder(id);
     }
 }
