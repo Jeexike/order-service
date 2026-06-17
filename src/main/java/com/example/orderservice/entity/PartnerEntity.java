@@ -6,9 +6,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.FetchType;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.CascadeType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,38 +15,42 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "orders")
+@Table(name = "partners")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderEntity {
-
+public class PartnerEntity {
     @Id
-    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "source")
-    private String source;
+    @Column(name = "email")
+    private String email;
 
-    @Column(name = "destination")
-    private String destination;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "partner_id")
-    private PartnerEntity partner;
+    @OneToMany(mappedBy = "partner", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderEntity> orders = new ArrayList<>();
 
     @CreationTimestamp
-    @Column(name = "created_at")
     private Timestamp createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
     private Timestamp updatedAt;
+
+    public void addOrder(OrderEntity order) {
+        orders.add(order);
+        order.setPartner(this);
+    }
+
+    public void removeOrder(OrderEntity order) {
+        orders.remove(order);
+        order.setPartner(null);
+    }
 }

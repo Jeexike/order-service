@@ -1,60 +1,110 @@
 package com.example.orderservice.config;
 
 import com.example.orderservice.mapper.OrderMapper;
-import com.example.orderservice.mapper.jdbcMapper.OrderMapperJdbc;
-import com.example.orderservice.mapper.jpaMapper.OrderMapperJpa;
+import com.example.orderservice.mapper.PartnerMapper;
 import com.example.orderservice.repository.OrderRepository;
+import com.example.orderservice.repository.PartnerRepository;
 import com.example.orderservice.repository.jdbcRepository.OrderRepositoryJdbc;
+import com.example.orderservice.repository.jdbcRepository.PartnerRepositoryJdbc;
 import com.example.orderservice.repository.jpaRepository.OrderJpaRepository;
 import com.example.orderservice.repository.jpaRepository.OrderRepositoryJpa;
+import com.example.orderservice.repository.jpaRepository.PartnerJpaRepository;
+import com.example.orderservice.repository.jpaRepository.PartnerRepositoryJpa;
 import com.example.orderservice.service.OrderService;
+import com.example.orderservice.service.PartnerService;
 import com.example.orderservice.service.jdbcService.OrderServiceJdbc;
+import com.example.orderservice.service.jdbcService.PartnerServiceJdbc;
 import com.example.orderservice.service.jpaService.OrderServiceJpa;
+import com.example.orderservice.service.jpaService.PartnerServiceJpa;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 @Configuration
 public class AppConfig {
 
+    //MAPPERS
+
+    @Bean
+    public OrderMapper orderMapper() {
+        return new OrderMapper();
+    }
+
+    @Bean
+    public PartnerMapper partnerMapper() {
+        return new PartnerMapper();
+    }
+
+    //ORDER REPOSITORIES
+
     @Bean
     @ConditionalOnProperty(name = "repository.type", havingValue = "jpa")
-    @Primary
-    public OrderRepository jpaRepository(OrderJpaRepository orderJpaRepository) {
+    public OrderRepository jpaOrderRepository(OrderJpaRepository orderJpaRepository) {
         return new OrderRepositoryJpa(orderJpaRepository);
     }
 
     @Bean
     @ConditionalOnProperty(name = "repository.type", havingValue = "jdbc")
-    public OrderRepository jdbcRepository(JdbcTemplate jdbcTemplate) {
+    public OrderRepository jdbcOrderRepository(JdbcTemplate jdbcTemplate) {
         return new OrderRepositoryJdbc(jdbcTemplate);
     }
 
+    //PARTNER REPOSITORIES
     @Bean
     @ConditionalOnProperty(name = "repository.type", havingValue = "jpa")
-    public OrderService jpaService(OrderRepository orderRepository, OrderMapper orderMapper) {
-        return new OrderServiceJpa(orderRepository, orderMapper);
-    }
-
-
-    @Bean
-    @ConditionalOnProperty(name = "repository.type", havingValue = "jdbc")
-    public OrderService jdbcService(OrderRepository orderRepository,  OrderMapper orderMapper) {
-        return new OrderServiceJdbc(orderRepository,  orderMapper);
-    }
-
-    @Bean
-    @ConditionalOnProperty(name = "repository.type", havingValue = "jpa")
-    public OrderMapper jpaOrderMapper(ApplicationContext applicationContext) {
-        return new OrderMapperJpa(applicationContext);
+    public PartnerRepository jpaPartnerRepository(PartnerJpaRepository partnerJpaRepository) {
+        return new PartnerRepositoryJpa(partnerJpaRepository);
     }
 
     @Bean
     @ConditionalOnProperty(name = "repository.type", havingValue = "jdbc")
-    public OrderMapper jdbcOrderMapper(ApplicationContext applicationContext) {
-        return new OrderMapperJdbc(applicationContext);
+    public PartnerRepository jdbcPartnerRepository(JdbcTemplate jdbcTemplate) {
+        return new PartnerRepositoryJdbc(jdbcTemplate);
+    }
+
+    //ORDER SERVICES
+
+    @Bean
+    @ConditionalOnProperty(name = "repository.type", havingValue = "jpa")
+    public OrderService jpaOrderService(
+            OrderRepository orderRepository,
+            PartnerRepository partnerRepository,
+            OrderMapper orderMapper
+    ) {
+        return new OrderServiceJpa(orderRepository, partnerRepository, orderMapper);
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "repository.type", havingValue = "jdbc")
+    public OrderService jdbcOrderService(
+            OrderRepository orderRepository,
+            PartnerRepository partnerRepository,
+            OrderMapper orderMapper
+    ) {
+        return new OrderServiceJdbc(orderRepository, partnerRepository, orderMapper);
+    }
+
+    //PARTNER SERVICES
+
+    @Bean
+    @ConditionalOnProperty(name = "repository.type", havingValue = "jpa")
+    public PartnerService jpaPartnerService(
+            PartnerRepository partnerRepository,
+            PartnerMapper partnerMapper,
+            OrderMapper orderMapper
+    ) {
+        return new PartnerServiceJpa(partnerRepository, partnerMapper, orderMapper);
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "repository.type", havingValue = "jdbc")
+    public PartnerService jdbcPartnerService(
+            PartnerRepository partnerRepository,
+            OrderRepository orderRepository,
+            PartnerMapper partnerMapper,
+            OrderMapper orderMapper
+    ) {
+        return new PartnerServiceJdbc(partnerRepository, orderRepository, partnerMapper, orderMapper);
     }
 }

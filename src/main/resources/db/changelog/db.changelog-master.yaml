@@ -1,3 +1,8 @@
 databaseChangeLog:
-  - includeAll:
-      path: db/changelog/sql/
+  - include:
+      file: changes/001-create-partners.yaml
+      relativeToChangelogFile: true
+
+  - include:
+      file: changes/002-create-orders.yaml
+      relativeToChangelogFile: true

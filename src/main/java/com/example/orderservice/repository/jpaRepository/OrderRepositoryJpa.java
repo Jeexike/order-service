@@ -1,6 +1,7 @@
 package com.example.orderservice.repository.jpaRepository;
 
 import com.example.orderservice.entity.OrderEntity;
+import com.example.orderservice.exception.OrderNotFoundException;
 import com.example.orderservice.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -15,12 +16,17 @@ public class OrderRepositoryJpa implements OrderRepository {
     @Override
     public OrderEntity getOrderById(UUID id) {
         return orderJpaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Order Not Found: " + id));
+                .orElseThrow(() -> new OrderNotFoundException(id));
     }
 
     @Override
     public List<OrderEntity> getOrders() {
         return orderJpaRepository.findAll();
+    }
+
+    @Override
+    public List<OrderEntity> getOrdersByPartnerId(UUID partnerId) {
+        return orderJpaRepository.findByPartnerId(partnerId);
     }
 
     @Override

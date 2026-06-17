@@ -3,14 +3,10 @@ package com.example.orderservice.dto;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 import java.util.UUID;
 
-@Component
-@Scope("prototype")
 @Data
 @JsonPropertyOrder({"id", "name", "source", "destination", "createdAt", "updatedAt"})
 @Schema(description = "Ответ с данными заказа")
@@ -27,6 +23,9 @@ public class OrderResponse {
 
     @Schema(description = "Точка назначения", example = "Санкт-Петербург")
     private String destination;
+
+    @Schema(description = "ID партнера")
+    private UUID partnerId;
 
     @Schema(description = "Время создания")
     private Timestamp createdAt;

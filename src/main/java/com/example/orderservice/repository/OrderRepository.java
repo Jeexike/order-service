@@ -9,6 +9,7 @@ public interface OrderRepository {
 
     OrderEntity getOrderById(UUID id);
     List<OrderEntity> getOrders();
+    List<OrderEntity> getOrdersByPartnerId(UUID partnerId);
     OrderEntity createOrder(OrderEntity newOrder);
     OrderEntity updateOrder(OrderEntity updatedOrder);
     void deleteOrder(UUID id);

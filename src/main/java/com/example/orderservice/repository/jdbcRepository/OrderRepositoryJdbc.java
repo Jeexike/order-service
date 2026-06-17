@@ -1,9 +1,9 @@
 package com.example.orderservice.repository.jdbcRepository;
 
 import com.example.orderservice.entity.OrderEntity;
+import com.example.orderservice.entity.PartnerEntity;
 import com.example.orderservice.repository.OrderQueries;
 import com.example.orderservice.repository.OrderRepository;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -15,53 +15,75 @@ public class OrderRepositoryJdbc implements OrderRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public OrderRepositoryJdbc(@Qualifier("jdbcRepository") JdbcTemplate jdbcTemplate) {
+    public OrderRepositoryJdbc(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    private final RowMapper<OrderEntity> rowMapper = ((rs, rowNum) -> new OrderEntity(
-            rs.getObject("id", UUID.class),
-            rs.getString("name"),
-            rs.getString("source"),
-            rs.getString("destination"),
-            rs.getObject("created_at", Timestamp.class),
-            rs.getObject("updated_at", Timestamp.class)
-    ));
+    private final RowMapper<OrderEntity> rowMapper = (rs, rowNum) -> {
+        OrderEntity order = new OrderEntity();
+        order.setId(rs.getObject("id", UUID.class));
+        order.setName(rs.getString("name"));
+        order.setSource(rs.getString("source"));
+        order.setDestination(rs.getString("destination"));
+        order.setCreatedAt(rs.getObject("created_at", Timestamp.class));
+        order.setUpdatedAt(rs.getObject("updated_at", Timestamp.class));
+
+        UUID partnerId = rs.getObject("partner_id", UUID.class);
+        if (partnerId != null) {
+            PartnerEntity partner = new PartnerEntity();
+            partner.setId(partnerId);
+            order.setPartner(partner);
+        }
+
+        return order;
+    };
 
     @Override
     public OrderEntity getOrderById(UUID id) {
-        return jdbcTemplate.queryForObject(OrderQueries.GET_ORDER_BY_ID.getQuery(), rowMapper, id);
+        return jdbcTemplate.queryForObject(OrderQueries.GET_ORDER_BY_ID, rowMapper, id);
     }
 
     @Override
     public List<OrderEntity> getOrders() {
-        return jdbcTemplate.query(OrderQueries.GET_ALL_ORDERS.getQuery(), rowMapper);
+        return jdbcTemplate.query(OrderQueries.GET_ALL_ORDERS, rowMapper);
+    }
+
+    @Override
+    public List<OrderEntity> getOrdersByPartnerId(UUID partnerId) {
+        return jdbcTemplate.query(OrderQueries.GET_ORDERS_BY_PARTNER_ID, rowMapper, partnerId);
     }
 
     @Override
     public OrderEntity createOrder(OrderEntity newOrder) {
-        jdbcTemplate.update(OrderQueries.CREATE_ORDER.getQuery(),
+        UUID partnerId = newOrder.getPartner() != null ? newOrder.getPartner().getId() : null;
+
+        return jdbcTemplate.queryForObject(
+                OrderQueries.CREATE_ORDER,
+                rowMapper,
                 newOrder.getName(),
                 newOrder.getSource(),
                 newOrder.getDestination(),
-                newOrder.getCreatedAt(),
-                newOrder.getUpdatedAt());
-        return newOrder;
+                partnerId
+        );
     }
 
     @Override
     public OrderEntity updateOrder(OrderEntity updatedOrder) {
-        jdbcTemplate.update(OrderQueries.UPDATE_ORDER.getQuery(),
+        UUID partnerId = updatedOrder.getPartner() != null ? updatedOrder.getPartner().getId() : null;
+
+        return jdbcTemplate.queryForObject(
+                OrderQueries.UPDATE_ORDER,
+                rowMapper,
                 updatedOrder.getName(),
                 updatedOrder.getSource(),
                 updatedOrder.getDestination(),
-                updatedOrder.getUpdatedAt(),
-                updatedOrder.getId());
-        return updatedOrder;
+                partnerId,
+                updatedOrder.getId()
+        );
     }
 
     @Override
     public void deleteOrder(UUID id) {
-        jdbcTemplate.update(OrderQueries.DELETE_ORDER.getQuery(), id);
+        jdbcTemplate.update(OrderQueries.DELETE_ORDER, id);
     }
 }
