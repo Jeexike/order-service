@@ -53,14 +53,13 @@ public class OrderServiceJpa implements OrderService {
     @Override
     @Transactional
     public OrderResponse updateOrder(UUID id, OrderRequest orderRequest) {
-        orderRepository.getOrderById(id);
-
         OrderEntity orderEntity = orderMapper.mapOrderRequestToOrderEntity(id, orderRequest);
 
+        PartnerEntity partner = null;
         if (orderRequest.getPartnerId() != null) {
-            PartnerEntity partner = partnerRepository.getPartnerById(orderRequest.getPartnerId());
-            orderEntity.setPartner(partner);
+            partner = partnerRepository.getPartnerById(orderRequest.getPartnerId());
         }
+        orderEntity.setPartner(partner);
 
         OrderEntity updated = orderRepository.updateOrder(orderEntity);
         return orderMapper.mapOrderEntityToOrderResponse(updated);

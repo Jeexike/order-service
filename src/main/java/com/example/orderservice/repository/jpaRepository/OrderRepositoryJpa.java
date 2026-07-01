@@ -37,11 +37,12 @@ public class OrderRepositoryJpa implements OrderRepository {
     @Override
     public OrderEntity updateOrder(OrderEntity updatedOrder) {
         OrderEntity existing = orderJpaRepository.findById(updatedOrder.getId())
-                .orElseThrow(() -> new RuntimeException("Order Not Found: " + updatedOrder.getId()));
+                .orElseThrow(() -> new OrderNotFoundException(updatedOrder.getId()));
 
         existing.setName(updatedOrder.getName());
         existing.setSource(updatedOrder.getSource());
         existing.setDestination(updatedOrder.getDestination());
+        existing.setPartner(updatedOrder.getPartner());
 
         return orderJpaRepository.save(existing);
     }

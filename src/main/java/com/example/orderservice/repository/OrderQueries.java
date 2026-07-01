@@ -15,15 +15,21 @@ public interface OrderQueries {
             """;
 
     String CREATE_ORDER = """
-            INSERT INTO orders (name, source, destination)
-            VALUES (?, ?, ?)
-            """;
+        INSERT INTO orders (id, name, source, destination, partner_id)
+        VALUES (?, ?, ?, ?, ?)
+        RETURNING id, name, source, destination, partner_id, created_at, updated_at
+        """;
 
     String UPDATE_ORDER = """
-            UPDATE orders
-            SET name = ?, source = ?, destination = ?
-            WHERE id = ?
-            """;
+        UPDATE orders
+        SET name = ?,
+            source = ?,
+            destination = ?,
+            partner_id = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+        RETURNING id, name, source, destination, partner_id, created_at, updated_at
+        """;
 
     String DELETE_ORDER = "DELETE FROM orders WHERE id = ?";
 }

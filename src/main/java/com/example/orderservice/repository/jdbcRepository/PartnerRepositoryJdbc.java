@@ -48,9 +48,12 @@ public class PartnerRepositoryJdbc implements PartnerRepository {
 
     @Override
     public PartnerEntity createPartner(PartnerEntity partnerEntity) {
+        UUID id = (partnerEntity.getId() != null) ? partnerEntity.getId() : UUID.randomUUID();
+
         return jdbcTemplate.queryForObject(
                 PartnerQueries.CREATE_PARTNER,
                 rowMapper,
+                id,
                 partnerEntity.getName(),
                 partnerEntity.getEmail()
         );
@@ -77,6 +80,7 @@ public class PartnerRepositoryJdbc implements PartnerRepository {
             throw new PartnerNotFoundException(id);
         }
 
+        jdbcTemplate.update(PartnerQueries.DELETE_ORDERS_BY_PARTNER_ID, id);
         jdbcTemplate.update(PartnerQueries.DELETE_PARTNER, id);
     }
 

@@ -57,9 +57,12 @@ public class OrderRepositoryJdbc implements OrderRepository {
     public OrderEntity createOrder(OrderEntity newOrder) {
         UUID partnerId = newOrder.getPartner() != null ? newOrder.getPartner().getId() : null;
 
+        UUID id = (newOrder.getId() != null) ? newOrder.getId() : UUID.randomUUID();
+
         return jdbcTemplate.queryForObject(
                 OrderQueries.CREATE_ORDER,
                 rowMapper,
+                id,
                 newOrder.getName(),
                 newOrder.getSource(),
                 newOrder.getDestination(),

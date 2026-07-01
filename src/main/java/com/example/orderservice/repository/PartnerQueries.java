@@ -15,8 +15,8 @@ public interface PartnerQueries {
             """;
 
     String CREATE_PARTNER = """
-            INSERT INTO partners (name, email)
-            VALUES (?, ?)
+            INSERT INTO partners (id, name, email)
+            VALUES (?, ?, ?)
             RETURNING id, name, email, created_at, updated_at
             """;
 
@@ -42,4 +42,6 @@ public interface PartnerQueries {
             WHERE partner_id = ?
             ORDER BY created_at DESC
             """;
+
+    String DELETE_ORDERS_BY_PARTNER_ID = "DELETE FROM orders WHERE partner_id = ?";
 }
