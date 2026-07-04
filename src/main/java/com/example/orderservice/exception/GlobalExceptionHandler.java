@@ -32,6 +32,12 @@ public class GlobalExceptionHandler {
         return buildError(HttpStatus.NOT_FOUND, ex.getMessage(), null);
     }
 
+    @ExceptionHandler(PartnerNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handlePartnerNotFound(PartnerNotFoundException ex) {
+        return buildError(HttpStatus.NOT_FOUND, ex.getMessage(), null);
+    }
+
+
     private ResponseEntity<Map<String, Object>> buildError(HttpStatus status, String message, Object details) {
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", LocalDateTime.now());

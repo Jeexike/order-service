@@ -49,6 +49,9 @@ public class OrderRepositoryJpa implements OrderRepository {
 
     @Override
     public void deleteOrder(UUID id) {
-        orderJpaRepository.deleteById(id);
+        OrderEntity existing = orderJpaRepository.findById(id)
+                .orElseThrow(() -> new OrderNotFoundException(id));
+
+        orderJpaRepository.delete(existing);
     }
 }

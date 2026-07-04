@@ -2,8 +2,10 @@ package com.example.orderservice.repository.jdbcRepository;
 
 import com.example.orderservice.entity.OrderEntity;
 import com.example.orderservice.entity.PartnerEntity;
+import com.example.orderservice.exception.OrderNotFoundException;
 import com.example.orderservice.repository.OrderQueries;
 import com.example.orderservice.repository.OrderRepository;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -40,7 +42,15 @@ public class OrderRepositoryJdbc implements OrderRepository {
 
     @Override
     public OrderEntity getOrderById(UUID id) {
-        return jdbcTemplate.queryForObject(OrderQueries.GET_ORDER_BY_ID, rowMapper, id);
+        try {
+            return jdbcTemplate.queryForObject(
+                    OrderQueries.GET_ORDER_BY_ID,
+                    rowMapper,
+                    id
+            );
+        } catch (EmptyResultDataAccessException e) {
+            throw new OrderNotFoundException(id);
+        }
     }
 
     @Override
@@ -87,6 +97,9 @@ public class OrderRepositoryJdbc implements OrderRepository {
 
     @Override
     public void deleteOrder(UUID id) {
-        jdbcTemplate.update(OrderQueries.DELETE_ORDER, id);
+        int affectedRows = jdbcTemplate.update(OrderQueries.DELETE_ORDER, id);
+        if (affectedRows == 0) {
+            throw new OrderNotFoundException(id);
+        }
     }
 }
