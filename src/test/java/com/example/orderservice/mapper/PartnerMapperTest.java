@@ -27,7 +27,7 @@ class PartnerMapperTest {
         request.setName("Partner");
         request.setEmail("partner@test.com");
 
-        PartnerEntity entity = mapper.mapPartnerRequestToPartnerEntity(request);
+        PartnerEntity entity = mapper.toPartnerEntity(request);
 
         assertNotNull(entity);
         assertNull(entity.getId());
@@ -43,7 +43,7 @@ class PartnerMapperTest {
         request.setName("Partner");
         request.setEmail("partner@test.com");
 
-        PartnerEntity entity = mapper.mapPartnerRequestToPartnerEntity(id, request);
+        PartnerEntity entity = mapper.toPartnerEntity(id, request);
 
         assertEquals(id, entity.getId());
         assertEquals(request.getName(), entity.getName());
@@ -63,7 +63,7 @@ class PartnerMapperTest {
         entity.setCreatedAt(createTime);
         entity.setUpdatedAt(updateTime);
 
-        PartnerResponse response = mapper.mapPartnerEntityToPartnerResponse(entity);
+        PartnerResponse response = mapper.toPartnerResponse(entity);
 
         assertEquals(id, response.getId());
         assertEquals(entity.getName(), response.getName());
@@ -81,7 +81,7 @@ class PartnerMapperTest {
         second.setName("Second");
 
         List<PartnerResponse> responses =
-                mapper.mapPartnerEntityToPartnerResponse(List.of(first, second));
+                mapper.toPartnerResponse(List.of(first, second));
 
         assertEquals(2, responses.size());
         assertEquals("First", responses.get(0).getName());

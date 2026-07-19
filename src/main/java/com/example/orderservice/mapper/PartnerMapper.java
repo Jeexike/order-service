@@ -10,14 +10,14 @@ import java.util.UUID;
 
 public class PartnerMapper {
 
-    public PartnerEntity mapPartnerRequestToPartnerEntity(PartnerRequest request) {
+    public PartnerEntity toPartnerEntity(PartnerRequest request) {
         PartnerEntity entity = new PartnerEntity();
         entity.setName(request.getName());
         entity.setEmail(request.getEmail());
         return entity;
     }
 
-    public PartnerEntity mapPartnerRequestToPartnerEntity(UUID id, PartnerRequest request) {
+    public PartnerEntity toPartnerEntity(UUID id, PartnerRequest request) {
         PartnerEntity entity = new PartnerEntity();
         entity.setId(id);
         entity.setName(request.getName());
@@ -25,7 +25,7 @@ public class PartnerMapper {
         return entity;
     }
 
-    public PartnerResponse mapPartnerEntityToPartnerResponse(PartnerEntity entity) {
+    public PartnerResponse toPartnerResponse(PartnerEntity entity) {
         PartnerResponse response = new PartnerResponse();
         response.setId(entity.getId());
         response.setName(entity.getName());
@@ -35,10 +35,10 @@ public class PartnerMapper {
         return response;
     }
 
-    public List<PartnerResponse> mapPartnerEntityToPartnerResponse(List<PartnerEntity> entities) {
+    public List<PartnerResponse> toPartnerResponse(List<PartnerEntity> entities) {
         List<PartnerResponse> responses = new ArrayList<>();
         for (PartnerEntity entity : entities) {
-            responses.add(mapPartnerEntityToPartnerResponse(entity));
+            responses.add(toPartnerResponse(entity));
         }
         return responses;
     }

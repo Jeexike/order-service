@@ -4,13 +4,13 @@ import com.example.orderservice.dto.OrderRequest;
 import com.example.orderservice.dto.OrderResponse;
 import com.example.orderservice.entity.OrderEntity;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class OrderMapper {
 
-    public OrderEntity mapOrderRequestToOrderEntity(OrderRequest orderRequest) {
+    public OrderEntity toOrderEntity(OrderRequest orderRequest) {
         OrderEntity orderEntity = new OrderEntity();
         orderEntity.setName(orderRequest.getName());
         orderEntity.setSource(orderRequest.getSource());
@@ -18,7 +18,7 @@ public class OrderMapper {
         return orderEntity;
     }
 
-    public OrderEntity mapOrderRequestToOrderEntity(UUID id, OrderRequest orderRequest) {
+    public OrderEntity toOrderEntity(UUID id, OrderRequest orderRequest) {
         OrderEntity orderEntity = new OrderEntity();
         orderEntity.setId(id);
         orderEntity.setName(orderRequest.getName());
@@ -27,7 +27,7 @@ public class OrderMapper {
         return orderEntity;
     }
 
-    public OrderResponse mapOrderEntityToOrderResponse(OrderEntity orderEntity) {
+    public OrderResponse toOrderResponse(OrderEntity orderEntity) {
         OrderResponse orderResponse = new OrderResponse();
         orderResponse.setId(orderEntity.getId());
         orderResponse.setName(orderEntity.getName());
@@ -36,18 +36,14 @@ public class OrderMapper {
         orderResponse.setCreatedAt(orderEntity.getCreatedAt());
         orderResponse.setUpdatedAt(orderEntity.getUpdatedAt());
 
-        if (orderEntity.getPartner() != null) {
-            orderResponse.setPartnerId(orderEntity.getPartner().getId());
-        }
+        orderResponse.setPartnerId(orderEntity.getPartner().getId());
 
         return orderResponse;
     }
 
-    public List<OrderResponse> mapOrderEntityToOrderResponse(List<OrderEntity> orderEntities) {
-        List<OrderResponse> orderResponseList = new ArrayList<>();
-        for (OrderEntity orderEntity : orderEntities) {
-            orderResponseList.add(mapOrderEntityToOrderResponse(orderEntity));
-        }
-        return orderResponseList;
+    public List<OrderResponse> toOrderResponse(List<OrderEntity> orderEntities) {
+        return orderEntities.stream()
+                .map(this::toOrderResponse)
+                .collect(Collectors.toList());
     }
 }

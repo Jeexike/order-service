@@ -24,7 +24,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 @Configuration
 public class AppConfig {
 
-    //MAPPERS
+    // MAPPERS
 
     @Bean
     public OrderMapper orderMapper() {
@@ -36,7 +36,7 @@ public class AppConfig {
         return new PartnerMapper();
     }
 
-    //ORDER REPOSITORIES
+    // ORDER REPOSITORIES
 
     @Bean
     @ConditionalOnProperty(name = "repository.type", havingValue = "jpa")
@@ -50,7 +50,7 @@ public class AppConfig {
         return new OrderRepositoryJdbc(jdbcTemplate);
     }
 
-    //PARTNER REPOSITORIES
+    // PARTNER REPOSITORIES
     @Bean
     @ConditionalOnProperty(name = "repository.type", havingValue = "jpa")
     public PartnerRepository jpaPartnerRepository(PartnerJpaRepository partnerJpaRepository) {
@@ -63,37 +63,28 @@ public class AppConfig {
         return new PartnerRepositoryJdbc(jdbcTemplate);
     }
 
-    //ORDER SERVICES
+    // ORDER SERVICES
 
     @Bean
     @ConditionalOnProperty(name = "repository.type", havingValue = "jpa")
     public OrderService jpaOrderService(
-            OrderRepository orderRepository,
-            PartnerRepository partnerRepository,
-            OrderMapper orderMapper
-    ) {
+            OrderRepository orderRepository, PartnerRepository partnerRepository, OrderMapper orderMapper) {
         return new OrderServiceJpa(orderRepository, partnerRepository, orderMapper);
     }
 
     @Bean
     @ConditionalOnProperty(name = "repository.type", havingValue = "jdbc")
     public OrderService jdbcOrderService(
-            OrderRepository orderRepository,
-            PartnerRepository partnerRepository,
-            OrderMapper orderMapper
-    ) {
+            OrderRepository orderRepository, PartnerRepository partnerRepository, OrderMapper orderMapper) {
         return new OrderServiceJdbc(orderRepository, partnerRepository, orderMapper);
     }
 
-    //PARTNER SERVICES
+    // PARTNER SERVICES
 
     @Bean
     @ConditionalOnProperty(name = "repository.type", havingValue = "jpa")
     public PartnerService jpaPartnerService(
-            PartnerRepository partnerRepository,
-            PartnerMapper partnerMapper,
-            OrderMapper orderMapper
-    ) {
+            PartnerRepository partnerRepository, PartnerMapper partnerMapper, OrderMapper orderMapper) {
         return new PartnerServiceJpa(partnerRepository, partnerMapper, orderMapper);
     }
 
@@ -103,8 +94,7 @@ public class AppConfig {
             PartnerRepository partnerRepository,
             OrderRepository orderRepository,
             PartnerMapper partnerMapper,
-            OrderMapper orderMapper
-    ) {
+            OrderMapper orderMapper) {
         return new PartnerServiceJdbc(partnerRepository, orderRepository, partnerMapper, orderMapper);
     }
 }

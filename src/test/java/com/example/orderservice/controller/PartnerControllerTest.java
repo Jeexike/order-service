@@ -1,13 +1,12 @@
 package com.example.orderservice.controller;
 
-import com.example.orderservice.database.TestDatabaseContainerService;
+import com.example.orderservice.database.AbstractIntegrationTest;
 import com.example.orderservice.dto.OrderRequest;
 import com.example.orderservice.dto.PartnerRequest;
 import com.example.orderservice.dto.PartnerResponse;
 import com.example.orderservice.service.OrderService;
 import com.example.orderservice.service.PartnerService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +14,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -36,12 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "spring.test.database.replace=none"
 })
 @ActiveProfiles("test")
-class PartnerControllerTest {
-
-    @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
-        TestDatabaseContainerService.configureProperties(registry);
-    }
+class PartnerControllerTest extends AbstractIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -53,11 +45,6 @@ class PartnerControllerTest {
 
     @Autowired
     private OrderService orderService;
-
-    @BeforeEach
-    void cleanDatabase() {
-        TestDatabaseContainerService.cleanDatabase();
-    }
 
     private PartnerResponse createPartner() {
 

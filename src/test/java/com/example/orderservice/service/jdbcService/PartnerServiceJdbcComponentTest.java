@@ -1,6 +1,6 @@
 package com.example.orderservice.service.jdbcService;
 
-import com.example.orderservice.database.TestDatabaseContainerService;
+import com.example.orderservice.database.AbstractIntegrationTest;
 import com.example.orderservice.dto.OrderRequest;
 import com.example.orderservice.dto.OrderResponse;
 import com.example.orderservice.dto.PartnerRequest;
@@ -8,14 +8,11 @@ import com.example.orderservice.dto.PartnerResponse;
 import com.example.orderservice.exception.PartnerNotFoundException;
 import com.example.orderservice.service.OrderService;
 import com.example.orderservice.service.PartnerService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
 
 import java.util.List;
@@ -30,23 +27,13 @@ import static org.junit.jupiter.api.Assertions.*;
         "spring.test.database.replace=none"
 })
 @ActiveProfiles("test")
-class PartnerServiceJdbcComponentTest {
-
-    @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
-        TestDatabaseContainerService.configureProperties(registry);
-    }
+class PartnerServiceJdbcComponentTest extends AbstractIntegrationTest {
 
     @Autowired
     private PartnerService partnerService;
 
     @Autowired
     private OrderService orderService;
-
-    @BeforeEach
-    void cleanDatabase() {
-        TestDatabaseContainerService.cleanDatabase();
-    }
 
     @Test
     @DisplayName("Создание партнера")

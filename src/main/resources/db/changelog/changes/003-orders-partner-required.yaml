@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-orders-partner-required
+      author: author
+      changes:
+        - dropForeignKeyConstraint:
+            baseTableName: orders
+            constraintName: fk_orders_partner
+
+        - addNotNullConstraint:
+            tableName: orders
+            columnName: partner_id
+            columnDataType: uuid
+
+        - addForeignKeyConstraint:
+            baseTableName: orders
+            baseColumnNames: partner_id
+            referencedTableName: partners
+            referencedColumnNames: id
+            constraintName: fk_orders_partner
+            onDelete: SET NULL

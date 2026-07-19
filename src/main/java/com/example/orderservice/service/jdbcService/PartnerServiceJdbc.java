@@ -26,23 +26,23 @@ public class PartnerServiceJdbc implements PartnerService {
     @Override
     @Transactional
     public PartnerResponse createPartner(PartnerRequest request) {
-        PartnerEntity entity = partnerMapper.mapPartnerRequestToPartnerEntity(request);
+        PartnerEntity entity = partnerMapper.toPartnerEntity(request);
         PartnerEntity saved = partnerRepository.createPartner(entity);
-        return partnerMapper.mapPartnerEntityToPartnerResponse(saved);
+        return partnerMapper.toPartnerResponse(saved);
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public PartnerResponse getPartnerById(UUID partnerId) {
         PartnerEntity partner = partnerRepository.getPartnerById(partnerId);
-        return partnerMapper.mapPartnerEntityToPartnerResponse(partner);
+        return partnerMapper.toPartnerResponse(partner);
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public List<OrderResponse> getOrdersByPartnerId(UUID partnerId) {
         partnerRepository.getPartnerById(partnerId);
-        return orderMapper.mapOrderEntityToOrderResponse(orderRepository.getOrdersByPartnerId(partnerId));
+        return orderMapper.toOrderResponse(orderRepository.getOrdersByPartnerId(partnerId));
     }
 
     @Override

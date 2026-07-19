@@ -10,7 +10,6 @@ import java.util.UUID;
 
 public interface OrderJpaRepository extends JpaRepository<OrderEntity, UUID> {
 
-    @Query("SELECT o FROM OrderEntity o WHERE o.partner.id = :partnerId")
     List<OrderEntity> findByPartnerId(@Param("partnerId") UUID partnerId);
 }
 

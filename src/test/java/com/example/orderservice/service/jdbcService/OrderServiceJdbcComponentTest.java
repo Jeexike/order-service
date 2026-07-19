@@ -1,6 +1,6 @@
 package com.example.orderservice.service.jdbcService;
 
-import com.example.orderservice.database.TestDatabaseContainerService;
+import com.example.orderservice.database.AbstractIntegrationTest;
 import com.example.orderservice.dto.OrderRequest;
 import com.example.orderservice.dto.OrderResponse;
 import com.example.orderservice.dto.PartnerRequest;
@@ -8,13 +8,10 @@ import com.example.orderservice.dto.PartnerResponse;
 import com.example.orderservice.exception.OrderNotFoundException;
 import com.example.orderservice.service.OrderService;
 import com.example.orderservice.service.PartnerService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
 
 import java.util.List;
@@ -26,12 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestPropertySource(properties = {
         "repository.type=jdbc"
 })
-class OrderServiceJdbcComponentTest {
-
-    @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
-        TestDatabaseContainerService.configureProperties(registry);
-    }
+class OrderServiceJdbcComponentTest extends AbstractIntegrationTest {
 
     @Autowired
     private OrderService orderService;
@@ -39,9 +31,12 @@ class OrderServiceJdbcComponentTest {
     @Autowired
     private PartnerService partnerService;
 
-    @BeforeEach
-    void cleanDatabase() {
-        TestDatabaseContainerService.cleanDatabase();
+    private UUID createPartner() {
+        PartnerRequest partnerRequest = new PartnerRequest();
+        partnerRequest.setName("Partner");
+        partnerRequest.setEmail("partner@test.com");
+        PartnerResponse partner = partnerService.createPartner(partnerRequest);
+        return partner.getId();
     }
 
     @Test
@@ -52,6 +47,7 @@ class OrderServiceJdbcComponentTest {
         request.setName("Order");
         request.setSource("Moscow");
         request.setDestination("SPB");
+        request.setPartnerId(createPartner());
 
         OrderResponse response = orderService.createOrder(request);
 
@@ -72,11 +68,13 @@ class OrderServiceJdbcComponentTest {
         first.setName("One");
         first.setSource("A");
         first.setDestination("B");
+        first.setPartnerId(createPartner());
 
         OrderRequest second = new OrderRequest();
         second.setName("Two");
         second.setSource("C");
         second.setDestination("D");
+        second.setPartnerId(createPartner());
 
         orderService.createOrder(first);
         orderService.createOrder(second);
@@ -94,6 +92,8 @@ class OrderServiceJdbcComponentTest {
         request.setName("Old");
         request.setSource("A");
         request.setDestination("B");
+        UUID partnerId = createPartner();
+        request.setPartnerId(partnerId);
 
         OrderResponse created =
                 orderService.createOrder(request);
@@ -102,6 +102,7 @@ class OrderServiceJdbcComponentTest {
         update.setName("New");
         update.setSource("X");
         update.setDestination("Y");
+        update.setPartnerId(partnerId);
 
         OrderResponse updated =
                 orderService.updateOrder(created.getId(), update);
@@ -119,6 +120,7 @@ class OrderServiceJdbcComponentTest {
         request.setName("Delete");
         request.setSource("A");
         request.setDestination("B");
+        request.setPartnerId(createPartner());
 
         OrderResponse created =
                 orderService.createOrder(request);

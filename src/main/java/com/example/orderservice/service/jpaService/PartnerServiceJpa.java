@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@Transactional(readOnly = true)
+
 @RequiredArgsConstructor
 public class PartnerServiceJpa implements PartnerService {
 
@@ -26,22 +26,24 @@ public class PartnerServiceJpa implements PartnerService {
     @Override
     @Transactional
     public PartnerResponse createPartner(PartnerRequest request) {
-        PartnerEntity entity = partnerMapper.mapPartnerRequestToPartnerEntity(request);
+        PartnerEntity entity = partnerMapper.toPartnerEntity(request);
         PartnerEntity saved = partnerRepository.createPartner(entity);
-        return partnerMapper.mapPartnerEntityToPartnerResponse(saved);
+        return partnerMapper.toPartnerResponse(saved);
     }
 
     @Override
+    @Transactional
     public PartnerResponse getPartnerById(UUID partnerId) {
         PartnerEntity partner = partnerRepository.getPartnerById(partnerId);
-        return partnerMapper.mapPartnerEntityToPartnerResponse(partner);
+        return partnerMapper.toPartnerResponse(partner);
     }
 
     @Override
+    @Transactional
     public List<OrderResponse> getOrdersByPartnerId(UUID partnerId) {
         PartnerEntity partner = partnerRepository.getPartnerById(partnerId);
         return partner.getOrders().stream()
-                .map(orderMapper::mapOrderEntityToOrderResponse)
+                .map(orderMapper::toOrderResponse)
                 .collect(Collectors.toList());
     }
 

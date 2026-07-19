@@ -1,6 +1,6 @@
 package com.example.orderservice.service.jpaService;
 
-import com.example.orderservice.database.TestDatabaseContainerService;
+import com.example.orderservice.database.AbstractIntegrationTest;
 import com.example.orderservice.dto.OrderRequest;
 import com.example.orderservice.dto.OrderResponse;
 import com.example.orderservice.dto.PartnerRequest;
@@ -10,16 +10,11 @@ import com.example.orderservice.exception.PartnerNotFoundException;
 import com.example.orderservice.repository.PartnerRepository;
 import com.example.orderservice.service.OrderService;
 import com.example.orderservice.service.PartnerService;
-import jakarta.persistence.EntityManager;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -33,15 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
         "spring.jpa.show-sql=true",
         "spring.test.database.replace=none"
 })
-class PartnerServiceJpaComponentTest {
-
-    @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
-        TestDatabaseContainerService.configureProperties(registry);
-    }
-
-    @Autowired
-    private EntityManager entityManager;
+class PartnerServiceJpaComponentTest extends AbstractIntegrationTest {
 
     @Autowired
     private PartnerService partnerService;
@@ -52,13 +39,7 @@ class PartnerServiceJpaComponentTest {
     @Autowired
     private PartnerRepository partnerRepository;
 
-    @BeforeEach
-    void cleanDatabase() {
-        TestDatabaseContainerService.cleanDatabase();
-    }
-
     @Test
-    @Transactional
     @DisplayName("Создание партнера")
     void createPartner_ShouldCreatePartner() {
 
@@ -78,7 +59,6 @@ class PartnerServiceJpaComponentTest {
     }
 
     @Test
-    @Transactional
     @DisplayName("Получение партнера по id")
     void getPartnerById_ShouldReturnPartner() {
 
@@ -98,7 +78,6 @@ class PartnerServiceJpaComponentTest {
     }
 
     @Test
-    @Transactional
     @DisplayName("Удаление партнера")
     void deletePartner_ShouldDeletePartner() {
 
@@ -120,7 +99,6 @@ class PartnerServiceJpaComponentTest {
     }
 
     @Test
-    @Transactional
     @DisplayName("Получение заказов партнера")
     void getOrdersByPartnerId_ShouldReturnOrders() {
 
@@ -145,9 +123,6 @@ class PartnerServiceJpaComponentTest {
         orderService.createOrder(first);
         orderService.createOrder(second);
 
-        entityManager.flush();
-        entityManager.clear();
-
         List<OrderResponse> orders =
                 partnerService.getOrdersByPartnerId(partner.getId());
         assertNotNull(orders);
@@ -168,7 +143,6 @@ class PartnerServiceJpaComponentTest {
     }
 
     @Test
-    @Transactional
     @DisplayName("Удаление несуществующего партнера")
     void deletePartner_ShouldThrowException_WhenPartnerDoesNotExist() {
 
@@ -181,7 +155,6 @@ class PartnerServiceJpaComponentTest {
     }
 
     @Test
-    @Transactional
     @DisplayName("Получение заказов отсутствующего партнера")
     void getOrdersByPartnerId_ShouldThrowException() {
 
@@ -192,7 +165,6 @@ class PartnerServiceJpaComponentTest {
     }
 
     @Test
-    @Transactional
     @DisplayName("Получение отсутствующего партнера")
     void getPartnerById_ShouldThrowException() {
 
@@ -203,7 +175,6 @@ class PartnerServiceJpaComponentTest {
     }
 
     @Test
-    @Transactional
     @DisplayName("Создание нескольких партнеров")
     void createManyPartners_ShouldPersistAll() {
 

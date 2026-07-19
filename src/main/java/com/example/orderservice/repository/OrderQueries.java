@@ -1,6 +1,4 @@
 package com.example.orderservice.repository;
-
-// ✅ Заменяем enum на interface с константами - это правильное предназначение
 public interface OrderQueries {
 
     String GET_ORDER_BY_ID = "SELECT * FROM orders WHERE id = ?";

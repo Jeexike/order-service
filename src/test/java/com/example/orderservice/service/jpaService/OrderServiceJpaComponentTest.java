@@ -1,23 +1,21 @@
 package com.example.orderservice.service.jpaService;
 
-import com.example.orderservice.OrderServiceApplication;
-import com.example.orderservice.database.TestDatabaseContainerService;
+import com.example.orderservice.database.AbstractIntegrationTest;
 import com.example.orderservice.dto.OrderRequest;
 import com.example.orderservice.dto.OrderResponse;
+import com.example.orderservice.dto.PartnerRequest;
+import com.example.orderservice.dto.PartnerResponse;
 import com.example.orderservice.entity.OrderEntity;
 import com.example.orderservice.exception.OrderNotFoundException;
 import com.example.orderservice.repository.OrderRepository;
 import com.example.orderservice.service.OrderService;
-import org.junit.jupiter.api.BeforeEach;
+import com.example.orderservice.service.PartnerService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -33,12 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
         "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect"
 })
 @ActiveProfiles("test")
-class OrderServiceJpaComponentTest {
-
-    @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
-        TestDatabaseContainerService.configureProperties(registry);
-    }
+class OrderServiceJpaComponentTest extends AbstractIntegrationTest {
 
     @Autowired
     private OrderService orderService;
@@ -46,13 +39,18 @@ class OrderServiceJpaComponentTest {
     @Autowired
     private OrderRepository orderRepository;
 
-    @BeforeEach
-    void setUp() {
-        TestDatabaseContainerService.cleanDatabase();
+    @Autowired
+    private PartnerService partnerService;
+
+    private UUID createPartner() {
+        PartnerRequest partnerRequest = new PartnerRequest();
+        partnerRequest.setName("Partner");
+        partnerRequest.setEmail("partner@test.com");
+        PartnerResponse partner = partnerService.createPartner(partnerRequest);
+        return partner.getId();
     }
 
     @Test
-    @Transactional
     @DisplayName("Создание заказа")
     void createOrder_ShouldSaveOrder() {
 
@@ -60,6 +58,7 @@ class OrderServiceJpaComponentTest {
         request.setName("Laptop");
         request.setSource("Moscow");
         request.setDestination("SPB");
+        request.setPartnerId(createPartner());
 
         OrderResponse response = orderService.createOrder(request);
 
@@ -76,7 +75,6 @@ class OrderServiceJpaComponentTest {
     }
 
     @Test
-    @Transactional
     @DisplayName("Получение заказа по id")
     void getOrderById_ShouldReturnOrder() {
 
@@ -84,6 +82,7 @@ class OrderServiceJpaComponentTest {
         request.setName("Phone");
         request.setSource("A");
         request.setDestination("B");
+        request.setPartnerId(createPartner());
 
         OrderResponse created =
                 orderService.createOrder(request);
@@ -98,7 +97,6 @@ class OrderServiceJpaComponentTest {
     }
 
     @Test
-    @Transactional
     @DisplayName("Получение всех заказов")
     void getOrders_ShouldReturnOrders() {
 
@@ -106,11 +104,13 @@ class OrderServiceJpaComponentTest {
         first.setName("Order1");
         first.setSource("A");
         first.setDestination("B");
+        first.setPartnerId(createPartner());
 
         OrderRequest second = new OrderRequest();
         second.setName("Order2");
         second.setSource("C");
         second.setDestination("D");
+        second.setPartnerId(createPartner());
 
         orderService.createOrder(first);
         orderService.createOrder(second);
@@ -122,7 +122,6 @@ class OrderServiceJpaComponentTest {
     }
 
     @Test
-    @Transactional
     @DisplayName("Обновление заказа")
     void updateOrder_ShouldUpdateOrder() {
 
@@ -130,6 +129,8 @@ class OrderServiceJpaComponentTest {
         request.setName("Old");
         request.setSource("OldSource");
         request.setDestination("OldDestination");
+        UUID partnerId = createPartner();
+        request.setPartnerId(partnerId);
 
         OrderResponse created =
                 orderService.createOrder(request);
@@ -138,6 +139,7 @@ class OrderServiceJpaComponentTest {
         update.setName("New");
         update.setSource("NewSource");
         update.setDestination("NewDestination");
+        update.setPartnerId(partnerId);
 
         OrderResponse updated =
                 orderService.updateOrder(created.getId(), update);
@@ -155,7 +157,6 @@ class OrderServiceJpaComponentTest {
     }
 
     @Test
-    @Transactional
     @DisplayName("Удаление заказа")
     void deleteOrder_ShouldDeleteOrder() {
 
@@ -163,6 +164,7 @@ class OrderServiceJpaComponentTest {
         request.setName("Delete");
         request.setSource("A");
         request.setDestination("B");
+        request.setPartnerId(createPartner());
 
         OrderResponse created =
                 orderService.createOrder(request);
@@ -178,7 +180,6 @@ class OrderServiceJpaComponentTest {
     }
 
     @Test
-    @Transactional
     @DisplayName("Получение несуществующего заказа")
     void getOrderById_ShouldThrowException() {
 
@@ -191,7 +192,6 @@ class OrderServiceJpaComponentTest {
     }
 
     @Test
-    @Transactional
     @DisplayName("Удаление несуществующего заказа")
     void deleteOrder_ShouldThrowException_WhenOrderDoesNotExist() {
 

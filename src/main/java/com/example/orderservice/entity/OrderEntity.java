@@ -26,7 +26,7 @@ import java.util.UUID;
 public class OrderEntity {
 
     @Id
-    @Column(name = "id")
+    @Column(name = "id", nullable = false,  updatable = false)
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
@@ -39,7 +39,7 @@ public class OrderEntity {
     @Column(name = "destination")
     private String destination;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "partner_id")
     private PartnerEntity partner;
 

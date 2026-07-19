@@ -1,5 +1,6 @@
 package com.example.orderservice.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -19,21 +21,25 @@ public class GlobalExceptionHandler {
         ex.getBindingResult().getFieldErrors()
                 .forEach(err -> fieldErrors.put(err.getField(), err.getDefaultMessage()));
 
+        log.warn("Field validation failed: {}", fieldErrors);
         return buildError(HttpStatus.BAD_REQUEST, "Field validation failed", fieldErrors);
     }
 
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<Map<String, Object>> handleBusinessValidation(ValidationException ex) {
+        log.warn("Business validation failed: {}", ex.getMessage());
         return buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), null);
     }
 
     @ExceptionHandler(OrderNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleNotFound(OrderNotFoundException ex) {
+        log.warn("Order not found: {}", ex.getMessage());
         return buildError(HttpStatus.NOT_FOUND, ex.getMessage(), null);
     }
 
     @ExceptionHandler(PartnerNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handlePartnerNotFound(PartnerNotFoundException ex) {
+        log.error("Partner not found: {}", ex.getMessage());
         return buildError(HttpStatus.NOT_FOUND, ex.getMessage(), null);
     }
 

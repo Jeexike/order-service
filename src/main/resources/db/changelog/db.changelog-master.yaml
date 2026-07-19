@@ -6,3 +6,7 @@ databaseChangeLog:
   - include:
       file: changes/002-create-orders.yaml
       relativeToChangelogFile: true
+
+  - include:
+      file: changes/003-orders-partner-required.yaml
+      relativeToChangelogFile: true
