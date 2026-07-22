@@ -2,12 +2,13 @@ package com.example.orderservice.dto;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
-
 import java.sql.Timestamp;
 import java.util.UUID;
+import lombok.Builder;
+import lombok.Data;
 
 @Data
+@Builder
 @JsonPropertyOrder({"id", "name", "source", "destination", "createdAt", "updatedAt"})
 @Schema(description = "Ответ с данными заказа")
 public class OrderResponse {

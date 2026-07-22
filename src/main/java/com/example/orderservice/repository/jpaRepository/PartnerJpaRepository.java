@@ -1,11 +1,10 @@
 package com.example.orderservice.repository.jpaRepository;
 
 import com.example.orderservice.entity.PartnerEntity;
+import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
-import java.util.UUID;
 
 public interface PartnerJpaRepository extends JpaRepository<PartnerEntity, UUID> {
 

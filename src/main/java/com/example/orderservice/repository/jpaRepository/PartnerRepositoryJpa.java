@@ -3,10 +3,9 @@ package com.example.orderservice.repository.jpaRepository;
 import com.example.orderservice.entity.PartnerEntity;
 import com.example.orderservice.exception.PartnerNotFoundException;
 import com.example.orderservice.repository.PartnerRepository;
-import lombok.RequiredArgsConstructor;
-
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class PartnerRepositoryJpa implements PartnerRepository {
@@ -15,8 +14,7 @@ public class PartnerRepositoryJpa implements PartnerRepository {
 
     @Override
     public PartnerEntity getPartnerById(UUID id) {
-        return partnerJpaRepository.findById(id)
-                .orElseThrow(() -> new PartnerNotFoundException(id));
+        return partnerJpaRepository.findById(id).orElseThrow(() -> new PartnerNotFoundException(id));
     }
 
     @Override

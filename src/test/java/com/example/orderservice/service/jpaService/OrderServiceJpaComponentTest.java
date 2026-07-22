@@ -1,5 +1,9 @@
 package com.example.orderservice.service.jpaService;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import com.example.orderservice.database.AbstractIntegrationTest;
 import com.example.orderservice.dto.OrderRequest;
 import com.example.orderservice.dto.OrderResponse;
@@ -10,6 +14,9 @@ import com.example.orderservice.exception.OrderNotFoundException;
 import com.example.orderservice.repository.OrderRepository;
 import com.example.orderservice.service.OrderService;
 import com.example.orderservice.service.PartnerService;
+import com.example.orderservice.testdata.TestDataFactory;
+import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,19 +24,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
-import java.util.List;
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 @SpringBootTest
-@TestPropertySource(properties = {
-        "repository.type=jpa",
-        "spring.jpa.hibernate.ddl-auto=validate",
-        "spring.jpa.show-sql=true",
-        "spring.test.database.replace=none",
-        "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect"
-})
+@TestPropertySource(
+        properties = {
+            "repository.type=jpa",
+            "spring.jpa.hibernate.ddl-auto=validate",
+            "spring.jpa.show-sql=true",
+            "spring.test.database.replace=none",
+            "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect"
+        })
 @ActiveProfiles("test")
 class OrderServiceJpaComponentTest extends AbstractIntegrationTest {
 
@@ -43,9 +46,7 @@ class OrderServiceJpaComponentTest extends AbstractIntegrationTest {
     private PartnerService partnerService;
 
     private UUID createPartner() {
-        PartnerRequest partnerRequest = new PartnerRequest();
-        partnerRequest.setName("Partner");
-        partnerRequest.setEmail("partner@test.com");
+        PartnerRequest partnerRequest = TestDataFactory.createPartnerRequest();
         PartnerResponse partner = partnerService.createPartner(partnerRequest);
         return partner.getId();
     }
@@ -54,11 +55,10 @@ class OrderServiceJpaComponentTest extends AbstractIntegrationTest {
     @DisplayName("Создание заказа")
     void createOrder_ShouldSaveOrder() {
 
-        OrderRequest request = new OrderRequest();
+        OrderRequest request = TestDataFactory.createOrderRequest(createPartner());
         request.setName("Laptop");
         request.setSource("Moscow");
         request.setDestination("SPB");
-        request.setPartnerId(createPartner());
 
         OrderResponse response = orderService.createOrder(request);
 
@@ -66,8 +66,7 @@ class OrderServiceJpaComponentTest extends AbstractIntegrationTest {
         assertNotNull(response.getId());
         assertEquals("Laptop", response.getName());
 
-        OrderEntity entity =
-                orderRepository.getOrderById(response.getId());
+        OrderEntity entity = orderRepository.getOrderById(response.getId());
 
         assertEquals("Laptop", entity.getName());
         assertEquals("Moscow", entity.getSource());
@@ -78,17 +77,14 @@ class OrderServiceJpaComponentTest extends AbstractIntegrationTest {
     @DisplayName("Получение заказа по id")
     void getOrderById_ShouldReturnOrder() {
 
-        OrderRequest request = new OrderRequest();
+        OrderRequest request = TestDataFactory.createOrderRequest(createPartner());
         request.setName("Phone");
         request.setSource("A");
         request.setDestination("B");
-        request.setPartnerId(createPartner());
 
-        OrderResponse created =
-                orderService.createOrder(request);
+        OrderResponse created = orderService.createOrder(request);
 
-        OrderResponse found =
-                orderService.getOrderById(created.getId());
+        OrderResponse found = orderService.getOrderById(created.getId());
 
         assertNotNull(found);
 
@@ -100,23 +96,20 @@ class OrderServiceJpaComponentTest extends AbstractIntegrationTest {
     @DisplayName("Получение всех заказов")
     void getOrders_ShouldReturnOrders() {
 
-        OrderRequest first = new OrderRequest();
+        OrderRequest first = TestDataFactory.createOrderRequest(createPartner());
         first.setName("Order1");
         first.setSource("A");
         first.setDestination("B");
-        first.setPartnerId(createPartner());
 
-        OrderRequest second = new OrderRequest();
+        OrderRequest second = TestDataFactory.createOrderRequest(createPartner());
         second.setName("Order2");
         second.setSource("C");
         second.setDestination("D");
-        second.setPartnerId(createPartner());
 
         orderService.createOrder(first);
         orderService.createOrder(second);
 
-        List<OrderResponse> orders =
-                orderService.getOrders();
+        List<OrderResponse> orders = orderService.getOrders();
 
         assertEquals(2, orders.size());
     }
@@ -125,31 +118,27 @@ class OrderServiceJpaComponentTest extends AbstractIntegrationTest {
     @DisplayName("Обновление заказа")
     void updateOrder_ShouldUpdateOrder() {
 
-        OrderRequest request = new OrderRequest();
+        UUID partnerId = createPartner();
+
+        OrderRequest request = TestDataFactory.createOrderRequest(partnerId);
         request.setName("Old");
         request.setSource("OldSource");
         request.setDestination("OldDestination");
-        UUID partnerId = createPartner();
-        request.setPartnerId(partnerId);
 
-        OrderResponse created =
-                orderService.createOrder(request);
+        OrderResponse created = orderService.createOrder(request);
 
-        OrderRequest update = new OrderRequest();
+        OrderRequest update = TestDataFactory.createOrderRequest(partnerId);
         update.setName("New");
         update.setSource("NewSource");
         update.setDestination("NewDestination");
-        update.setPartnerId(partnerId);
 
-        OrderResponse updated =
-                orderService.updateOrder(created.getId(), update);
+        OrderResponse updated = orderService.updateOrder(created.getId(), update);
 
         assertEquals("New", updated.getName());
         assertEquals("NewSource", updated.getSource());
         assertEquals("NewDestination", updated.getDestination());
 
-        OrderEntity entity =
-                orderRepository.getOrderById(created.getId());
+        OrderEntity entity = orderRepository.getOrderById(created.getId());
 
         assertEquals("New", entity.getName());
         assertEquals("NewSource", entity.getSource());
@@ -160,23 +149,18 @@ class OrderServiceJpaComponentTest extends AbstractIntegrationTest {
     @DisplayName("Удаление заказа")
     void deleteOrder_ShouldDeleteOrder() {
 
-        OrderRequest request = new OrderRequest();
+        OrderRequest request = TestDataFactory.createOrderRequest(createPartner());
         request.setName("Delete");
         request.setSource("A");
         request.setDestination("B");
-        request.setPartnerId(createPartner());
 
-        OrderResponse created =
-                orderService.createOrder(request);
+        OrderResponse created = orderService.createOrder(request);
 
         UUID id = created.getId();
 
         orderService.deleteOrder(id);
 
-        assertThrows(
-                OrderNotFoundException.class,
-                () -> orderRepository.getOrderById(id)
-        );
+        assertThrows(OrderNotFoundException.class, () -> orderRepository.getOrderById(id));
     }
 
     @Test
@@ -185,10 +169,7 @@ class OrderServiceJpaComponentTest extends AbstractIntegrationTest {
 
         UUID id = UUID.randomUUID();
 
-        assertThrows(
-                OrderNotFoundException.class,
-                () -> orderService.getOrderById(id)
-        );
+        assertThrows(OrderNotFoundException.class, () -> orderService.getOrderById(id));
     }
 
     @Test
@@ -197,10 +178,6 @@ class OrderServiceJpaComponentTest extends AbstractIntegrationTest {
 
         UUID id = UUID.randomUUID();
 
-        assertThrows(
-                OrderNotFoundException.class,
-                () -> orderService.deleteOrder(id)
-        );
+        assertThrows(OrderNotFoundException.class, () -> orderService.deleteOrder(id));
     }
-
 }

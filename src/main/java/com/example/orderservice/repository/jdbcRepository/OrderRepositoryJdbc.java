@@ -5,13 +5,12 @@ import com.example.orderservice.entity.PartnerEntity;
 import com.example.orderservice.exception.OrderNotFoundException;
 import com.example.orderservice.repository.OrderQueries;
 import com.example.orderservice.repository.OrderRepository;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
-
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 
 public class OrderRepositoryJdbc implements OrderRepository {
 
@@ -43,11 +42,7 @@ public class OrderRepositoryJdbc implements OrderRepository {
     @Override
     public OrderEntity getOrderById(UUID id) {
         try {
-            return jdbcTemplate.queryForObject(
-                    OrderQueries.GET_ORDER_BY_ID,
-                    rowMapper,
-                    id
-            );
+            return jdbcTemplate.queryForObject(OrderQueries.GET_ORDER_BY_ID, rowMapper, id);
         } catch (EmptyResultDataAccessException e) {
             throw new OrderNotFoundException(id);
         }
@@ -76,13 +71,13 @@ public class OrderRepositoryJdbc implements OrderRepository {
                 newOrder.getName(),
                 newOrder.getSource(),
                 newOrder.getDestination(),
-                partnerId
-        );
+                partnerId);
     }
 
     @Override
     public OrderEntity updateOrder(OrderEntity updatedOrder) {
-        UUID partnerId = updatedOrder.getPartner() != null ? updatedOrder.getPartner().getId() : null;
+        UUID partnerId =
+                updatedOrder.getPartner() != null ? updatedOrder.getPartner().getId() : null;
 
         return jdbcTemplate.queryForObject(
                 OrderQueries.UPDATE_ORDER,
@@ -91,8 +86,7 @@ public class OrderRepositoryJdbc implements OrderRepository {
                 updatedOrder.getSource(),
                 updatedOrder.getDestination(),
                 partnerId,
-                updatedOrder.getId()
-        );
+                updatedOrder.getId());
     }
 
     @Override

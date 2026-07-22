@@ -1,16 +1,17 @@
 package com.example.orderservice.mapper;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import com.example.orderservice.dto.OrderRequest;
 import com.example.orderservice.dto.OrderResponse;
 import com.example.orderservice.entity.OrderEntity;
 import com.example.orderservice.entity.PartnerEntity;
-import org.junit.jupiter.api.Test;
-
-import java.sql.Timestamp;
+import com.example.orderservice.testdata.TestDataFactory;
 import java.util.List;
 import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class OrderMapperTest {
 
@@ -18,10 +19,7 @@ class OrderMapperTest {
 
     @Test
     void shouldMapOrderRequestToOrderEntity() {
-        OrderRequest request = new OrderRequest();
-        request.setName("Order 1");
-        request.setSource("Moscow");
-        request.setDestination("Saint Petersburg");
+        OrderRequest request = TestDataFactory.createOrderRequest();
 
         OrderEntity entity = mapper.toOrderEntity(request);
 
@@ -35,11 +33,7 @@ class OrderMapperTest {
     @Test
     void shouldMapOrderRequestToOrderEntityWithId() {
         UUID id = UUID.randomUUID();
-
-        OrderRequest request = new OrderRequest();
-        request.setName("Order 1");
-        request.setSource("Moscow");
-        request.setDestination("Saint Petersburg");
+        OrderRequest request = TestDataFactory.createOrderRequest();
 
         OrderEntity entity = mapper.toOrderEntity(id, request);
 
@@ -51,50 +45,31 @@ class OrderMapperTest {
 
     @Test
     void shouldMapOrderEntityToOrderResponse() {
-        UUID id = UUID.randomUUID();
-        UUID partnerId = UUID.randomUUID();
-
-        PartnerEntity partner = new PartnerEntity();
-        partner.setId(partnerId);
-
-        Timestamp createTime = Timestamp.valueOf("2025-01-01 12:00:00");
-        Timestamp updateTime = Timestamp.valueOf("2025-01-01 12:30:00");
-
-        OrderEntity entity = new OrderEntity();
-        entity.setId(id);
-        entity.setName("Order");
-        entity.setSource("A");
-        entity.setDestination("B");
-        entity.setCreatedAt(createTime);
-        entity.setUpdatedAt(updateTime);
-        entity.setPartner(partner);
+        PartnerEntity partner = TestDataFactory.createPartnerEntity();
+        OrderEntity entity = TestDataFactory.createOrderEntity(UUID.randomUUID(), partner);
 
         OrderResponse response = mapper.toOrderResponse(entity);
 
-        assertEquals(id, response.getId());
-        assertEquals("Order", response.getName());
-        assertEquals("A", response.getSource());
-        assertEquals("B", response.getDestination());
-        assertEquals(createTime, response.getCreatedAt());
-        assertEquals(updateTime, response.getUpdatedAt());
-        assertEquals(partnerId, response.getPartnerId());
+        assertEquals(entity.getId(), response.getId());
+        assertEquals(entity.getName(), response.getName());
+        assertEquals(entity.getSource(), response.getSource());
+        assertEquals(entity.getDestination(), response.getDestination());
+        assertEquals(entity.getCreatedAt(), response.getCreatedAt());
+        assertEquals(entity.getUpdatedAt(), response.getUpdatedAt());
+        assertEquals(partner.getId(), response.getPartnerId());
     }
 
     @Test
     void shouldMapOrderEntityListToOrderResponseList() {
-        PartnerEntity partner = new PartnerEntity();
-        partner.setId(UUID.randomUUID());
+        PartnerEntity partner = TestDataFactory.createPartnerEntity();
 
-        OrderEntity entity1 = new OrderEntity();
+        OrderEntity entity1 = TestDataFactory.createOrderEntity(UUID.randomUUID(), partner);
         entity1.setName("First");
-        entity1.setPartner(partner);
 
-        OrderEntity entity2 = new OrderEntity();
+        OrderEntity entity2 = TestDataFactory.createOrderEntity(UUID.randomUUID(), partner);
         entity2.setName("Second");
-        entity2.setPartner(partner);
 
-        List<OrderResponse> responses =
-                mapper.toOrderResponse(List.of(entity1, entity2));
+        List<OrderResponse> responses = mapper.toOrderResponse(List.of(entity1, entity2));
 
         assertEquals(2, responses.size());
         assertEquals("First", responses.get(0).getName());

@@ -23,8 +23,6 @@ public class OpenApiConfig {
                         .title("Order Service API")
                         .description("CRUD API для управления заказами (JPA / JDBC)")
                         .version("1.0.0")
-                        .contact(new Contact()
-                                .name(contactName)
-                                .email(contactEmail)));
+                        .contact(new Contact().name(contactName).email(contactEmail)));
     }
 }

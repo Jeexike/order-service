@@ -3,10 +3,9 @@ package com.example.orderservice.mapper;
 import com.example.orderservice.dto.PartnerRequest;
 import com.example.orderservice.dto.PartnerResponse;
 import com.example.orderservice.entity.PartnerEntity;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class PartnerMapper {
 
@@ -36,10 +35,6 @@ public class PartnerMapper {
     }
 
     public List<PartnerResponse> toPartnerResponse(List<PartnerEntity> entities) {
-        List<PartnerResponse> responses = new ArrayList<>();
-        for (PartnerEntity entity : entities) {
-            responses.add(toPartnerResponse(entity));
-        }
-        return responses;
+        return entities.stream().map(this::toPartnerResponse).collect(Collectors.toList());
     }
 }

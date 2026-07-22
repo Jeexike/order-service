@@ -4,14 +4,13 @@ import com.example.orderservice.entity.PartnerEntity;
 import com.example.orderservice.exception.PartnerNotFoundException;
 import com.example.orderservice.repository.PartnerQueries;
 import com.example.orderservice.repository.PartnerRepository;
+import java.sql.Timestamp;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-
-import java.sql.Timestamp;
-import java.util.List;
-import java.util.UUID;
 
 @RequiredArgsConstructor
 public class PartnerRepositoryJdbc implements PartnerRepository {
@@ -31,11 +30,7 @@ public class PartnerRepositoryJdbc implements PartnerRepository {
     @Override
     public PartnerEntity getPartnerById(UUID id) {
         try {
-            return jdbcTemplate.queryForObject(
-                    PartnerQueries.GET_PARTNER_BY_ID,
-                    rowMapper,
-                    id
-            );
+            return jdbcTemplate.queryForObject(PartnerQueries.GET_PARTNER_BY_ID, rowMapper, id);
         } catch (EmptyResultDataAccessException e) {
             throw new PartnerNotFoundException(id);
         }
@@ -51,12 +46,7 @@ public class PartnerRepositoryJdbc implements PartnerRepository {
         UUID id = (partnerEntity.getId() != null) ? partnerEntity.getId() : UUID.randomUUID();
 
         return jdbcTemplate.queryForObject(
-                PartnerQueries.CREATE_PARTNER,
-                rowMapper,
-                id,
-                partnerEntity.getName(),
-                partnerEntity.getEmail()
-        );
+                PartnerQueries.CREATE_PARTNER, rowMapper, id, partnerEntity.getName(), partnerEntity.getEmail());
     }
 
     @Override
@@ -70,8 +60,7 @@ public class PartnerRepositoryJdbc implements PartnerRepository {
                 rowMapper,
                 partnerEntity.getName(),
                 partnerEntity.getEmail(),
-                partnerEntity.getId()
-        );
+                partnerEntity.getId());
     }
 
     @Override
@@ -86,11 +75,7 @@ public class PartnerRepositoryJdbc implements PartnerRepository {
 
     @Override
     public boolean existsById(UUID id) {
-        Boolean exists = jdbcTemplate.queryForObject(
-                PartnerQueries.EXISTS_BY_ID,
-                Boolean.class,
-                id
-        );
+        Boolean exists = jdbcTemplate.queryForObject(PartnerQueries.EXISTS_BY_ID, Boolean.class, id);
         return Boolean.TRUE.equals(exists);
     }
 }

@@ -4,11 +4,10 @@ import com.example.orderservice.dto.OrderRequest;
 import com.example.orderservice.dto.OrderResponse;
 import com.example.orderservice.service.OrderService;
 import com.example.orderservice.validator.OrderValidator;
-import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.RestController;
-
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor

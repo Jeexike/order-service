@@ -1,16 +1,17 @@
 package com.example.orderservice.mapper;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import com.example.orderservice.dto.PartnerRequest;
 import com.example.orderservice.dto.PartnerResponse;
 import com.example.orderservice.entity.PartnerEntity;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.sql.Timestamp;
+import com.example.orderservice.testdata.TestDataFactory;
 import java.util.List;
 import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class PartnerMapperTest {
 
@@ -23,9 +24,7 @@ class PartnerMapperTest {
 
     @Test
     void shouldMapPartnerRequestToPartnerEntity() {
-        PartnerRequest request = new PartnerRequest();
-        request.setName("Partner");
-        request.setEmail("partner@test.com");
+        PartnerRequest request = TestDataFactory.createPartnerRequest();
 
         PartnerEntity entity = mapper.toPartnerEntity(request);
 
@@ -38,10 +37,7 @@ class PartnerMapperTest {
     @Test
     void shouldMapPartnerRequestToPartnerEntityWithId() {
         UUID id = UUID.randomUUID();
-
-        PartnerRequest request = new PartnerRequest();
-        request.setName("Partner");
-        request.setEmail("partner@test.com");
+        PartnerRequest request = TestDataFactory.createPartnerRequest();
 
         PartnerEntity entity = mapper.toPartnerEntity(id, request);
 
@@ -52,36 +48,26 @@ class PartnerMapperTest {
 
     @Test
     void shouldMapPartnerEntityToPartnerResponse() {
-        UUID id = UUID.randomUUID();
-        Timestamp createTime = Timestamp.valueOf("2025-01-01 12:00:00");
-        Timestamp updateTime = Timestamp.valueOf("2025-01-01 12:30:00");
-
-        PartnerEntity entity = new PartnerEntity();
-        entity.setId(id);
-        entity.setName("Partner");
-        entity.setEmail("partner@test.com");
-        entity.setCreatedAt(createTime);
-        entity.setUpdatedAt(updateTime);
+        PartnerEntity entity = TestDataFactory.createPartnerEntity();
 
         PartnerResponse response = mapper.toPartnerResponse(entity);
 
-        assertEquals(id, response.getId());
+        assertEquals(entity.getId(), response.getId());
         assertEquals(entity.getName(), response.getName());
         assertEquals(entity.getEmail(), response.getEmail());
-        assertEquals(createTime, response.getCreatedAt());
-        assertEquals(updateTime, response.getUpdatedAt());
+        assertEquals(entity.getCreatedAt(), response.getCreatedAt());
+        assertEquals(entity.getUpdatedAt(), response.getUpdatedAt());
     }
 
     @Test
     void shouldMapPartnerEntityListToPartnerResponseList() {
-        PartnerEntity first = new PartnerEntity();
+        PartnerEntity first = TestDataFactory.createPartnerEntity();
         first.setName("First");
 
-        PartnerEntity second = new PartnerEntity();
+        PartnerEntity second = TestDataFactory.createPartnerEntity();
         second.setName("Second");
 
-        List<PartnerResponse> responses =
-                mapper.toPartnerResponse(List.of(first, second));
+        List<PartnerResponse> responses = mapper.toPartnerResponse(List.of(first, second));
 
         assertEquals(2, responses.size());
         assertEquals("First", responses.get(0).getName());

@@ -1,4 +1,5 @@
 package com.example.orderservice.repository;
+
 public interface OrderQueries {
 
     String GET_ORDER_BY_ID = "SELECT * FROM orders WHERE id = ?";

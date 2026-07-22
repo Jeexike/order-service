@@ -1,11 +1,21 @@
 package com.example.orderservice.controller;
 
+import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.example.orderservice.database.AbstractIntegrationTest;
 import com.example.orderservice.dto.OrderRequest;
 import com.example.orderservice.dto.PartnerRequest;
 import com.example.orderservice.dto.PartnerResponse;
 import com.example.orderservice.service.PartnerService;
+import com.example.orderservice.testdata.TestDataFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,22 +26,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.UUID;
-
-import static org.hamcrest.Matchers.hasSize;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 @SpringBootTest
 @AutoConfigureMockMvc
-@TestPropertySource(properties = {
-        "repository.type=jpa",
-        "spring.test.database.replace=none"
-})
+@TestPropertySource(properties = {"repository.type=jpa", "spring.test.database.replace=none"})
 @ActiveProfiles("test")
 class OrderControllerTest extends AbstractIntegrationTest {
 
@@ -45,23 +42,16 @@ class OrderControllerTest extends AbstractIntegrationTest {
 
     private UUID createPartner() {
 
-        PartnerRequest request = new PartnerRequest();
-        request.setName("Partner");
-        request.setEmail("partner@test.com");
+        PartnerRequest request = TestDataFactory.createPartnerRequest();
 
-        PartnerResponse response =
-                partnerService.createPartner(request);
+        PartnerResponse response = partnerService.createPartner(request);
 
         return response.getId();
     }
 
     private String createOrder(UUID partnerId) throws Exception {
 
-        OrderRequest request = new OrderRequest();
-        request.setName("Order");
-        request.setSource("Moscow");
-        request.setDestination("SPB");
-        request.setPartnerId(partnerId);
+        OrderRequest request = TestDataFactory.createOrderRequest(partnerId);
 
         return mockMvc.perform(post("/orders")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -78,11 +68,8 @@ class OrderControllerTest extends AbstractIntegrationTest {
 
         UUID partnerId = createPartner();
 
-        OrderRequest request = new OrderRequest();
+        OrderRequest request = TestDataFactory.createOrderRequest(partnerId);
         request.setName("Laptop");
-        request.setSource("Moscow");
-        request.setDestination("SPB");
-        request.setPartnerId(partnerId);
 
         mockMvc.perform(post("/orders")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -90,8 +77,8 @@ class OrderControllerTest extends AbstractIntegrationTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.name").value("Laptop"))
-                .andExpect(jsonPath("$.source").value("Moscow"))
-                .andExpect(jsonPath("$.destination").value("SPB"))
+                .andExpect(jsonPath("$.source").value(request.getSource()))
+                .andExpect(jsonPath("$.destination").value(request.getDestination()))
                 .andExpect(jsonPath("$.partnerId").value(partnerId.toString()));
     }
 
@@ -104,9 +91,7 @@ class OrderControllerTest extends AbstractIntegrationTest {
         createOrder(partnerId);
         createOrder(partnerId);
 
-        mockMvc.perform(get("/orders"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)));
+        mockMvc.perform(get("/orders")).andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(2)));
     }
 
     @Test
@@ -118,10 +103,7 @@ class OrderControllerTest extends AbstractIntegrationTest {
         String json = createOrder(partnerId);
 
         UUID orderId =
-                objectMapper.readTree(json)
-                        .get("id")
-                        .traverse(objectMapper)
-                        .readValueAs(UUID.class);
+                objectMapper.readTree(json).get("id").traverse(objectMapper).readValueAs(UUID.class);
 
         mockMvc.perform(get("/orders/" + orderId))
                 .andExpect(status().isOk())
@@ -138,21 +120,16 @@ class OrderControllerTest extends AbstractIntegrationTest {
         String json = createOrder(partnerId);
 
         UUID orderId =
-                objectMapper.readTree(json)
-                        .get("id")
-                        .traverse(objectMapper)
-                        .readValueAs(UUID.class);
+                objectMapper.readTree(json).get("id").traverse(objectMapper).readValueAs(UUID.class);
 
-        OrderRequest update = new OrderRequest();
+        OrderRequest update = TestDataFactory.createOrderRequest(partnerId);
         update.setName("Updated");
         update.setSource("Paris");
         update.setDestination("Berlin");
-        update.setPartnerId(partnerId);
 
-        mockMvc.perform(
-                        put("/orders/" + orderId)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(update)))
+        mockMvc.perform(put("/orders/" + orderId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(update)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Updated"))
                 .andExpect(jsonPath("$.source").value("Paris"))
@@ -168,23 +145,18 @@ class OrderControllerTest extends AbstractIntegrationTest {
         String json = createOrder(partnerId);
 
         UUID orderId =
-                objectMapper.readTree(json)
-                        .get("id")
-                        .traverse(objectMapper)
-                        .readValueAs(UUID.class);
+                objectMapper.readTree(json).get("id").traverse(objectMapper).readValueAs(UUID.class);
 
-        mockMvc.perform(delete("/orders/" + orderId))
-                .andExpect(status().isNoContent());
+        mockMvc.perform(delete("/orders/" + orderId)).andExpect(status().isNoContent());
 
-        mockMvc.perform(get("/orders/" + orderId))
-                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/orders/" + orderId)).andExpect(status().isNotFound());
     }
 
     @Test
     @DisplayName("POST /orders invalid body -> 400")
     void createOrder_WithInvalidBody_ShouldReturn400() throws Exception {
 
-        OrderRequest request = new OrderRequest();
+        OrderRequest request = TestDataFactory.createOrderRequest();
         request.setName("");
         request.setSource("");
         request.setDestination("");
@@ -199,8 +171,7 @@ class OrderControllerTest extends AbstractIntegrationTest {
     @DisplayName("GET /orders/{id} -> 404")
     void getOrder_ShouldReturn404() throws Exception {
 
-        mockMvc.perform(get("/orders/" + UUID.randomUUID()))
-                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/orders/" + UUID.randomUUID())).andExpect(status().isNotFound());
     }
 
     @Test
@@ -209,16 +180,14 @@ class OrderControllerTest extends AbstractIntegrationTest {
 
         UUID partnerId = createPartner();
 
-        OrderRequest request = new OrderRequest();
+        OrderRequest request = TestDataFactory.createOrderRequest(partnerId);
         request.setName("Test");
         request.setSource("AA");
         request.setDestination("BB");
-        request.setPartnerId(partnerId);
 
-        mockMvc.perform(
-                        put("/orders/" + UUID.randomUUID())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(request)))
+        mockMvc.perform(put("/orders/" + UUID.randomUUID())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
     }
 
@@ -226,23 +195,20 @@ class OrderControllerTest extends AbstractIntegrationTest {
     @DisplayName("DELETE /orders/{id} несуществующего заказа -> 404")
     void deleteOrder_ShouldReturn404_WhenOrderDoesNotExist() throws Exception {
 
-        mockMvc.perform(delete("/orders/" + UUID.randomUUID()))
-                .andExpect(status().isNotFound());
+        mockMvc.perform(delete("/orders/" + UUID.randomUUID())).andExpect(status().isNotFound());
     }
 
     @Test
     @DisplayName("GET /orders/{id} с нечисловым/невалидным ID -> 400")
     void getOrder_nonUuidId_returnsBadRequest() throws Exception {
 
-        mockMvc.perform(get("/orders/not-a-uuid"))
-                .andExpect(status().isBadRequest());
+        mockMvc.perform(get("/orders/not-a-uuid")).andExpect(status().isBadRequest());
     }
 
     @Test
     @DisplayName("DELETE /orders/{id} с нечисловым/невалидным ID -> 400")
     void deleteOrder_nonUuidId_returnsBadRequest() throws Exception {
 
-        mockMvc.perform(delete("/orders/not-a-uuid"))
-                .andExpect(status().isBadRequest());
+        mockMvc.perform(delete("/orders/not-a-uuid")).andExpect(status().isBadRequest());
     }
 }

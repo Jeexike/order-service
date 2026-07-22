@@ -3,10 +3,9 @@ package com.example.orderservice.repository.jpaRepository;
 import com.example.orderservice.entity.OrderEntity;
 import com.example.orderservice.exception.OrderNotFoundException;
 import com.example.orderservice.repository.OrderRepository;
-import lombok.RequiredArgsConstructor;
-
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class OrderRepositoryJpa implements OrderRepository {
@@ -15,8 +14,7 @@ public class OrderRepositoryJpa implements OrderRepository {
 
     @Override
     public OrderEntity getOrderById(UUID id) {
-        return orderJpaRepository.findById(id)
-                .orElseThrow(() -> new OrderNotFoundException(id));
+        return orderJpaRepository.findById(id).orElseThrow(() -> new OrderNotFoundException(id));
     }
 
     @Override
@@ -36,7 +34,8 @@ public class OrderRepositoryJpa implements OrderRepository {
 
     @Override
     public OrderEntity updateOrder(OrderEntity updatedOrder) {
-        OrderEntity existing = orderJpaRepository.findById(updatedOrder.getId())
+        OrderEntity existing = orderJpaRepository
+                .findById(updatedOrder.getId())
                 .orElseThrow(() -> new OrderNotFoundException(updatedOrder.getId()));
 
         existing.setName(updatedOrder.getName());
@@ -49,8 +48,7 @@ public class OrderRepositoryJpa implements OrderRepository {
 
     @Override
     public void deleteOrder(UUID id) {
-        OrderEntity existing = orderJpaRepository.findById(id)
-                .orElseThrow(() -> new OrderNotFoundException(id));
+        OrderEntity existing = orderJpaRepository.findById(id).orElseThrow(() -> new OrderNotFoundException(id));
 
         orderJpaRepository.delete(existing);
     }

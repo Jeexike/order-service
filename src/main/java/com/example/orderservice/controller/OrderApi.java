@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
+import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,9 +20,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import java.util.List;
-import java.util.UUID;
-
 @RequestMapping("/orders")
 @Tag(name = "Orders", description = "Операции с заказами")
 public interface OrderApi {
@@ -28,8 +27,8 @@ public interface OrderApi {
     @GetMapping("/{id}")
     @Operation(summary = "Получить заказ по ID")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Заказ найден"),
-            @ApiResponse(responseCode = "404", description = "Заказ не найден")
+        @ApiResponse(responseCode = "200", description = "Заказ найден"),
+        @ApiResponse(responseCode = "404", description = "Заказ не найден")
     })
     OrderResponse getOrder(@Parameter(description = "ID заказа") @PathVariable UUID id);
 
@@ -41,28 +40,27 @@ public interface OrderApi {
     @Operation(summary = "Создать новый заказ")
     @ResponseStatus(HttpStatus.CREATED)
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Заказ создан"),
-            @ApiResponse(responseCode = "400", description = "Невалидные данные")
+        @ApiResponse(responseCode = "201", description = "Заказ создан"),
+        @ApiResponse(responseCode = "400", description = "Невалидные данные")
     })
     OrderResponse createOrder(@Valid @RequestBody OrderRequest orderRequest);
 
     @PutMapping("/{id}")
     @Operation(summary = "Обновить существующий заказ")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Заказ обновлён"),
-            @ApiResponse(responseCode = "404", description = "Заказ не найден"),
-            @ApiResponse(responseCode = "400", description = "Невалидные данные")
+        @ApiResponse(responseCode = "200", description = "Заказ обновлён"),
+        @ApiResponse(responseCode = "404", description = "Заказ не найден"),
+        @ApiResponse(responseCode = "400", description = "Невалидные данные")
     })
     OrderResponse updateOrder(
-            @Parameter(description = "ID заказа") @PathVariable UUID id,
-            @Valid @RequestBody OrderRequest orderRequest);
+            @Parameter(description = "ID заказа") @PathVariable UUID id, @Valid @RequestBody OrderRequest orderRequest);
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Удалить заказ")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Заказ удалён"),
-            @ApiResponse(responseCode = "404", description = "Заказ не найден")
+        @ApiResponse(responseCode = "204", description = "Заказ удалён"),
+        @ApiResponse(responseCode = "404", description = "Заказ не найден")
     })
     void deleteOrder(@Parameter(description = "ID заказа") @PathVariable UUID id);
 }
