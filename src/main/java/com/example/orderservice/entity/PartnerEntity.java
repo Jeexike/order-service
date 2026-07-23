@@ -25,6 +25,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 @NoArgsConstructor
 public class PartnerEntity {
     @Id
+    @Column(name = "id", nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
@@ -38,9 +39,11 @@ public class PartnerEntity {
     private List<OrderEntity> orders = new ArrayList<>();
 
     @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
     private Timestamp createdAt;
 
     @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
     private Timestamp updatedAt;
 
     public void addOrder(OrderEntity order) {
