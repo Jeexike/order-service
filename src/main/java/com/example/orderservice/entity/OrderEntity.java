@@ -40,6 +40,9 @@ public class OrderEntity {
     @Column(name = "destination", nullable = false)
     private String destination;
 
+    @Column(name = "link", nullable = false)
+    private String link;
+
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "partner_id", nullable = false)
     private PartnerEntity partner;

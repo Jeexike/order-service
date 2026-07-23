@@ -7,16 +7,16 @@ public interface OrderQueries {
     String GET_ALL_ORDERS = "SELECT * FROM orders";
 
     String GET_ORDERS_BY_PARTNER_ID = """
-            SELECT id, name, source, destination, partner_id, created_at, updated_at
+            SELECT id, name, source, destination, link, partner_id, created_at, updated_at
             FROM orders
             WHERE partner_id = ?
             ORDER BY created_at DESC
             """;
 
     String CREATE_ORDER = """
-        INSERT INTO orders (id, name, source, destination, partner_id)
-        VALUES (?, ?, ?, ?, ?)
-        RETURNING id, name, source, destination, partner_id, created_at, updated_at
+        INSERT INTO orders (id, name, source, destination, link, partner_id)
+        VALUES (?, ?, ?, ?, ?, ?)
+        RETURNING id, name, source, destination, link, partner_id, created_at, updated_at
         """;
 
     String UPDATE_ORDER = """
@@ -24,10 +24,11 @@ public interface OrderQueries {
         SET name = ?,
             source = ?,
             destination = ?,
+            link = ?,
             partner_id = ?,
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
-        RETURNING id, name, source, destination, partner_id, created_at, updated_at
+        RETURNING id, name, source, destination, link, partner_id, created_at, updated_at
         """;
 
     String DELETE_ORDER = "DELETE FROM orders WHERE id = ?";

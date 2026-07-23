@@ -14,3 +14,7 @@ databaseChangeLog:
   - include:
       file: changes/004-orders-partner-required.yaml
       relativeToChangelogFile: true
+
+  - include:
+      file: changes/005-orders-add-link.yaml
+      relativeToChangelogFile: true

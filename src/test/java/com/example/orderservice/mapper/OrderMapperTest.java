@@ -28,6 +28,7 @@ class OrderMapperTest {
         assertEquals(request.getName(), entity.getName());
         assertEquals(request.getSource(), entity.getSource());
         assertEquals(request.getDestination(), entity.getDestination());
+        assertEquals(request.getLink(), entity.getLink());
     }
 
     @Test
@@ -41,6 +42,7 @@ class OrderMapperTest {
         assertEquals(request.getName(), entity.getName());
         assertEquals(request.getSource(), entity.getSource());
         assertEquals(request.getDestination(), entity.getDestination());
+        assertEquals(request.getLink(), entity.getLink());
     }
 
     @Test
@@ -54,6 +56,7 @@ class OrderMapperTest {
         assertEquals(entity.getName(), response.getName());
         assertEquals(entity.getSource(), response.getSource());
         assertEquals(entity.getDestination(), response.getDestination());
+        assertEquals(entity.getLink(), response.getLink());
         assertEquals(entity.getCreatedAt(), response.getCreatedAt());
         assertEquals(entity.getUpdatedAt(), response.getUpdatedAt());
         assertEquals(partner.getId(), response.getPartnerId());
