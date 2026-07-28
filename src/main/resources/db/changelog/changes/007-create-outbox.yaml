@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: 007-create-outbox
+      author: author
+      changes:
+        - createTable:
+            tableName: outbox
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints: { primaryKey: true, nullable: false }
+              - column:
+                  name: order_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_outbox_order
+                    references: orders(id)
+              - column:
+                  name: payload
+                  type: text
+                  constraints: { nullable: false }
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints: { nullable: false }

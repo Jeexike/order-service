@@ -1,0 +1,44 @@
+databaseChangeLog:
+  - changeSet:
+      id: 006-create-repo-snapshot
+      author: author
+      changes:
+        - createTable:
+            tableName: repo_snapshot
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints: { primaryKey: true, nullable: false }
+              - column:
+                  name: order_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    unique: true
+                    foreignKeyName: fk_repo_snapshot_order
+                    references: orders(id)
+              - column:
+                  name: link
+                  type: varchar(2048)
+                  constraints: { nullable: false }
+              - column:
+                  name: repository_name
+                  type: varchar(255)
+              - column:
+                  name: repository_updated_at
+                  type: timestamp with time zone
+              - column:
+                  name: issues
+                  type: text
+              - column:
+                  name: pull_requests
+                  type: text
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints: { nullable: false }
+              - column:
+                  name: last_checked_at
+                  type: timestamp
+                  constraints: { nullable: false }

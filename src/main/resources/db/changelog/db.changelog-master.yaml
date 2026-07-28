@@ -18,3 +18,11 @@ databaseChangeLog:
   - include:
       file: changes/005-orders-add-link.yaml
       relativeToChangelogFile: true
+
+  - include:
+      file: changes/006-create-repo-snapshot.yaml
+      relativeToChangelogFile: true
+
+  - include:
+      file: changes/007-create-outbox.yaml
+      relativeToChangelogFile: true
