@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 009-repo-snapshot-add-hashes
+      author: author
+      changes:
+        - addColumn:
+            tableName: repo_snapshot
+            columns:
+              - column:
+                  name: issues_hash
+                  type: varchar(64)
+              - column:
+                  name: pull_requests_hash
+                  type: varchar(64)

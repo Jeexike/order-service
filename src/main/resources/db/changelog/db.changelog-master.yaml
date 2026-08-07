@@ -26,3 +26,11 @@ databaseChangeLog:
   - include:
       file: changes/007-create-outbox.yaml
       relativeToChangelogFile: true
+
+  - include:
+      file: changes/008-rename-outbox-table.yaml
+      relativeToChangelogFile: true
+
+  - include:
+      file: changes/009-repo-snapshot-add-hashes.yaml
+      relativeToChangelogFile: true

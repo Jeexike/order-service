@@ -5,7 +5,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import java.sql.Timestamp;
 import java.util.UUID;
@@ -15,12 +14,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "outbox")
+@Table(name = "tracking_outbox")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class OutboxEntity {
+public class TrackingOutboxEntity {
 
     @Id
     @Column(name = "id", nullable = false, updatable = false)
@@ -30,8 +29,7 @@ public class OutboxEntity {
     @Column(name = "order_id", nullable = false)
     private UUID orderId;
 
-    @Lob
-    @Column(name = "payload", nullable = false)
+    @Column(name = "payload", nullable = false, columnDefinition = "text")
     private String payload;
 
     @Column(name = "created_at", nullable = false, updatable = false)

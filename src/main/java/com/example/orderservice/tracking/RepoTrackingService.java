@@ -1,18 +1,17 @@
 package com.example.orderservice.tracking;
 
 import com.example.orderservice.entity.OrderEntity;
-import com.example.orderservice.entity.OutboxEntity;
 import com.example.orderservice.entity.RepoSnapshotEntity;
+import com.example.orderservice.entity.TrackingOutboxEntity;
 import com.example.orderservice.github.GitHubClient;
-import com.example.orderservice.github.dto.IssueResponse;
-import com.example.orderservice.github.dto.PullRequestResponse;
 import com.example.orderservice.github.dto.RepoSnapshotData;
-import com.example.orderservice.repository.OutboxRepository;
 import com.example.orderservice.repository.RepoSnapshotRepository;
+import com.example.orderservice.repository.TrackingOutboxRepository;
 import com.example.orderservice.tracking.dto.OrderLinkChangedEvent;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -22,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.type.CollectionType;
 
 @Slf4j
 @Service
@@ -31,7 +29,8 @@ public class RepoTrackingService {
 
     private final GitHubClient gitHubClient;
     private final RepoSnapshotRepository repoSnapshotRepository;
-    private final OutboxRepository outboxRepository;
+    private final TrackingOutboxRepository trackingOutboxRepository;
+    private final RepoSnapshotMapper repoSnapshotMapper;
     private final ObjectMapper objectMapper;
 
     @Transactional
@@ -40,11 +39,7 @@ public class RepoTrackingService {
         try {
             fresh = gitHubClient.fetch(order.getLink());
         } catch (Exception e) {
-            log.warn(
-                    "Failed to fresh Github data for order {} (link={}): {}",
-                    order.getId(),
-                    order.getLink(),
-                    e.getMessage());
+            log.error("Failed to fetch GitHub data for order {} (link={})", order.getId(), order.getLink(), e);
             return;
         }
 
@@ -54,8 +49,8 @@ public class RepoTrackingService {
         Timestamp now = Timestamp.from(Instant.now());
 
         if (existing == null) {
-            repoSnapshotRepository.save(toEntity(order, fresh, now, now));
-            log.info("Initial Github snapshot stored for order {} (link={})", order.getId(), order.getLink());
+            repoSnapshotRepository.save(repoSnapshotMapper.toEntity(order, fresh, now, now));
+            log.info("Initial GitHub snapshot stored for order {} (link={})", order.getId(), order.getLink());
 
             return;
         }
@@ -68,14 +63,14 @@ public class RepoTrackingService {
             return;
         }
 
-        RepoSnapshotEntity updated = toEntity(order, fresh, existing.getCreatedAt(), now);
+        RepoSnapshotEntity updated = repoSnapshotMapper.toEntity(order, fresh, existing.getCreatedAt(), now);
         updated.setId(existing.getId());
         repoSnapshotRepository.save(updated);
 
         OrderLinkChangedEvent event =
                 new OrderLinkChangedEvent(order.getId(), order.getLink(), changedFields, OffsetDateTime.now());
 
-        outboxRepository.save(OutboxEntity.builder()
+        trackingOutboxRepository.save(TrackingOutboxEntity.builder()
                 .orderId(order.getId())
                 .payload(writeJson(event))
                 .createdAt(now)
@@ -87,54 +82,26 @@ public class RepoTrackingService {
     private List<String> diff(RepoSnapshotEntity existing, RepoSnapshotData fresh) {
         List<String> changed = new ArrayList<>();
 
-        if (!Objects.equals(
-                existing.getRepositoryUpdatedAt(), fresh.repository().updatedAt())) {
+        if (!isSameInstant(existing.getRepositoryUpdatedAt(), fresh.repository().updatedAt())) {
             changed.add("repository.updatedAt");
         }
         if (!Objects.equals(existing.getRepositoryName(), fresh.repository().repositoryName())) {
             changed.add("repository.name");
         }
-        if (!Objects.equals(readIssues(existing.getIssues()), fresh.issues())) {
+        if (!Objects.equals(existing.getIssuesHash(), repoSnapshotMapper.hash(fresh.issues()))) {
             changed.add("issues");
         }
-        if (!Objects.equals(readPullRequests(existing.getPullRequests()), fresh.pullRequests())) {
+        if (!Objects.equals(existing.getPullRequestsHash(), repoSnapshotMapper.hash(fresh.pullRequests()))) {
             changed.add("pullRequests");
         }
         return changed;
     }
 
-    private RepoSnapshotEntity toEntity(
-            OrderEntity order, RepoSnapshotData data, Timestamp createdAt, Timestamp lastCheckedAt) {
-        return RepoSnapshotEntity.builder()
-                .orderId(order.getId())
-                .link(order.getLink())
-                .repositoryName(data.repository().repositoryName())
-                .repositoryUpdatedAt(data.repository().updatedAt())
-                .issues(writeJson(data.issues()))
-                .pullRequests(writeJson(data.pullRequests()))
-                .createdAt(createdAt)
-                .lastCheckedAt(lastCheckedAt)
-                .build();
-    }
-
-    private List<IssueResponse> readIssues(String json) {
-        return readJson(json, IssueResponse.class);
-    }
-
-    private List<PullRequestResponse> readPullRequests(String json) {
-        return readJson(json, PullRequestResponse.class);
-    }
-
-    private <T> List<T> readJson(String json, Class<T> elementType) {
-        if (json == null || json.isBlank()) {
-            return List.of();
+    private boolean isSameInstant(OffsetDateTime a, OffsetDateTime b) {
+        if (a == null || b == null) {
+            return a == b;
         }
-        try {
-            CollectionType listType = objectMapper.getTypeFactory().constructCollectionType(List.class, elementType);
-            return objectMapper.readValue(json, listType);
-        } catch (JacksonException e) {
-            throw new IllegalStateException("Failed to deserialize stored snapshot JSON", e);
-        }
+        return a.truncatedTo(ChronoUnit.MICROS).isEqual(b.truncatedTo(ChronoUnit.MICROS));
     }
 
     private String writeJson(Object value) {

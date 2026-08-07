@@ -5,7 +5,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import java.sql.Timestamp;
 import java.time.OffsetDateTime;
@@ -40,13 +39,17 @@ public class RepoSnapshotEntity {
     @Column(name = "repository_updated_at")
     private OffsetDateTime repositoryUpdatedAt;
 
-    @Lob
-    @Column(name = "issues")
+    @Column(name = "issues", columnDefinition = "text")
     private String issues;
 
-    @Lob
-    @Column(name = "pull_requests")
+    @Column(name = "issues_hash")
+    private String issuesHash;
+
+    @Column(name = "pull_requests", columnDefinition = "text")
     private String pullRequests;
+
+    @Column(name = "pull_requests_hash")
+    private String pullRequestsHash;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Timestamp createdAt;
