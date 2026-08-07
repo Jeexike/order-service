@@ -14,6 +14,7 @@ public class OrderMapper {
                 .name(orderRequest.getName())
                 .source(orderRequest.getSource())
                 .destination(orderRequest.getDestination())
+                .link(orderRequest.getLink())
                 .build();
     }
 
@@ -23,6 +24,7 @@ public class OrderMapper {
                 .name(orderRequest.getName())
                 .source(orderRequest.getSource())
                 .destination(orderRequest.getDestination())
+                .link(orderRequest.getLink())
                 .build();
     }
 
@@ -32,6 +34,7 @@ public class OrderMapper {
                 .name(orderEntity.getName())
                 .source(orderEntity.getSource())
                 .destination(orderEntity.getDestination())
+                .link(orderEntity.getLink())
                 .partnerId(orderEntity.getPartner().getId())
                 .createdAt(orderEntity.getCreatedAt())
                 .updatedAt(orderEntity.getUpdatedAt())

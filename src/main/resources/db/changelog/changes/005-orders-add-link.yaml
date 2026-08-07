@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-orders-add-link
+      author: author
+      changes:
+        - addColumn:
+            tableName: orders
+            columns:
+              - column:
+                  name: link
+                  type: varchar(2048)
+                  constraints: { nullable: false }

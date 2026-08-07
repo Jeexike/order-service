@@ -79,6 +79,7 @@ class OrderControllerTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.name").value("Laptop"))
                 .andExpect(jsonPath("$.source").value(request.getSource()))
                 .andExpect(jsonPath("$.destination").value(request.getDestination()))
+                .andExpect(jsonPath("$.link").value(request.getLink()))
                 .andExpect(jsonPath("$.partnerId").value(partnerId.toString()));
     }
 
@@ -160,6 +161,36 @@ class OrderControllerTest extends AbstractIntegrationTest {
         request.setName("");
         request.setSource("");
         request.setDestination("");
+
+        mockMvc.perform(post("/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("POST /orders с невалидным link (не GitHub-репозиторий) -> 400")
+    void createOrder_WithInvalidLink_ShouldReturn400() throws Exception {
+
+        UUID partnerId = createPartner();
+
+        OrderRequest request = TestDataFactory.createOrderRequest(partnerId);
+        request.setLink("not-a-url");
+
+        mockMvc.perform(post("/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("POST /orders с пустым link -> 400")
+    void createOrder_WithBlankLink_ShouldReturn400() throws Exception {
+
+        UUID partnerId = createPartner();
+
+        OrderRequest request = TestDataFactory.createOrderRequest(partnerId);
+        request.setLink("");
 
         mockMvc.perform(post("/orders")
                         .contentType(MediaType.APPLICATION_JSON)

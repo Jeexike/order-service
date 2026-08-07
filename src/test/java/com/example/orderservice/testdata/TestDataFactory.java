@@ -21,6 +21,7 @@ public final class TestDataFactory {
         request.setSource("Moscow");
         request.setDestination("Saint Petersburg");
         request.setPartnerId(partnerId);
+        request.setLink("https://github.com/Jeexike/order-service");
         return request;
     }
 
@@ -55,6 +56,7 @@ public final class TestDataFactory {
         entity.setName("Order");
         entity.setSource("A");
         entity.setDestination("B");
+        entity.setLink("https://github.com/Jeexike/order-service");
         entity.setPartner(partner);
         entity.setCreatedAt(Timestamp.valueOf("2025-01-01 12:00:00"));
         entity.setUpdatedAt(Timestamp.valueOf("2025-01-01 12:30:00"));

@@ -74,7 +74,7 @@ public class TestDatabaseContainerService {
         initJdbc();
 
         jdbcTemplate.execute("""
-            TRUNCATE TABLE orders, partners
+            TRUNCATE TABLE orders, partners, repo_snapshot, tracking_outbox
             RESTART IDENTITY
             CASCADE
             """);

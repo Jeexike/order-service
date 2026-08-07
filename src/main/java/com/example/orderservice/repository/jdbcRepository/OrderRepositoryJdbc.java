@@ -26,6 +26,7 @@ public class OrderRepositoryJdbc implements OrderRepository {
         order.setName(rs.getString("name"));
         order.setSource(rs.getString("source"));
         order.setDestination(rs.getString("destination"));
+        order.setLink(rs.getString("link"));
         order.setCreatedAt(rs.getObject("created_at", Timestamp.class));
         order.setUpdatedAt(rs.getObject("updated_at", Timestamp.class));
 
@@ -71,6 +72,7 @@ public class OrderRepositoryJdbc implements OrderRepository {
                 newOrder.getName(),
                 newOrder.getSource(),
                 newOrder.getDestination(),
+                newOrder.getLink(),
                 partnerId);
     }
 
@@ -85,6 +87,7 @@ public class OrderRepositoryJdbc implements OrderRepository {
                 updatedOrder.getName(),
                 updatedOrder.getSource(),
                 updatedOrder.getDestination(),
+                updatedOrder.getLink(),
                 partnerId,
                 updatedOrder.getId());
     }
