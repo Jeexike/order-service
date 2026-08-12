@@ -1,18 +1,24 @@
 package com.example.orderservice.github;
 
+import com.example.orderservice.exception.GitHubUnavailableException;
 import com.example.orderservice.exception.InvalidGitHubLinkException;
 import com.example.orderservice.github.dto.GitHubResponse;
 import com.example.orderservice.github.dto.IssueResponse;
 import com.example.orderservice.github.dto.PullRequestResponse;
 import com.example.orderservice.github.dto.RepoSnapshotData;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import io.github.resilience4j.retry.annotation.Retry;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class GitHubClient {
@@ -22,6 +28,9 @@ public class GitHubClient {
 
     private final RestClient gitHubRestClient;
 
+    @RateLimiter(name = "gitHubApi")
+    @Retry(name = "gitHubApi")
+    @CircuitBreaker(name = "gitHubApi", fallbackMethod = "fetchFallback")
     public RepoSnapshotData fetch(String link) {
         String[] ownerAndRepo = parseOwnerAndRepo(link);
         String owner = ownerAndRepo[0];
@@ -46,6 +55,11 @@ public class GitHubClient {
                 .body(new ParameterizedTypeReference<List<PullRequestResponse>>() {});
 
         return new RepoSnapshotData(repository, issues, pullRequests);
+    }
+
+    private RepoSnapshotData fetchFallback(String link, Throwable ex) {
+        log.warn("Resilience fallback triggered for GitHubClient.fetch(link={}): {}", link, ex.toString());
+        throw new GitHubUnavailableException(link, ex);
     }
 
     private String[] parseOwnerAndRepo(String link) {
