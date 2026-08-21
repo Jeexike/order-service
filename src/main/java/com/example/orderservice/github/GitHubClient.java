@@ -7,6 +7,7 @@ import com.example.orderservice.github.dto.IssueResponse;
 import com.example.orderservice.github.dto.PullRequestResponse;
 import com.example.orderservice.github.dto.RepoSnapshotData;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.RequestNotPermitted;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.github.resilience4j.retry.annotation.Retry;
 import java.util.List;
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
 @Slf4j
@@ -57,9 +59,20 @@ public class GitHubClient {
         return new RepoSnapshotData(repository, issues, pullRequests);
     }
 
+    @SuppressWarnings("unused")
     private RepoSnapshotData fetchFallback(String link, Throwable ex) {
+        if (ex instanceof InvalidGitHubLinkException inv) {
+            throw inv;
+        }
+        if (ex instanceof RequestNotPermitted rnp) {
+            throw rnp;
+        }
+        if (ex instanceof HttpClientErrorException hce) {
+            throw hce;
+        }
         log.warn("Resilience fallback triggered for GitHubClient.fetch(link={}): {}", link, ex.toString());
-        throw new GitHubUnavailableException(link, ex);
+        Exception cause = ex instanceof Exception e ? e : new RuntimeException(ex);
+        throw new GitHubUnavailableException(link, cause);
     }
 
     private String[] parseOwnerAndRepo(String link) {
