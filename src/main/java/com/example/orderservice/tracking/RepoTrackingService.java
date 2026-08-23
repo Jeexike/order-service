@@ -101,7 +101,7 @@ public class RepoTrackingService {
         if (a == null || b == null) {
             return a == b;
         }
-        return a.truncatedTo(ChronoUnit.MICROS).isEqual(b.truncatedTo(ChronoUnit.MICROS));
+        return a.truncatedTo(ChronoUnit.SECONDS).isEqual(b.truncatedTo(ChronoUnit.SECONDS));
     }
 
     private String writeJson(Object value) {

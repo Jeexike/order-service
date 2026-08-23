@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @Slf4j
 @RestControllerAdvice
@@ -66,6 +67,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleRateLimit(RequestNotPermitted ex) {
         log.warn("Rate limiter rejected request: {}", ex.getMessage());
         return buildError(HttpStatus.TOO_MANY_REQUESTS, "Rate limit exceeded, try again later", null);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Map<String, Object>> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        String message = "Parameter '" + ex.getName() + "' has invalid value: " + ex.getValue();
+        log.warn("Method argument type mismatch: {}", message);
+        return buildError(HttpStatus.BAD_REQUEST, message, null);
     }
 
     @ExceptionHandler(Exception.class)

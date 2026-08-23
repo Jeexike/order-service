@@ -23,7 +23,6 @@ class GitHubClientInvalidLinkTest {
     @Test
     @DisplayName("пустая строка → InvalidGitHubLinkException")
     void emptyLink_throws() {
-        assertThatThrownBy(() -> client.fetch(""))
-                .isInstanceOf(InvalidGitHubLinkException.class);
+        assertThatThrownBy(() -> client.fetch("")).isInstanceOf(InvalidGitHubLinkException.class);
     }
 }
