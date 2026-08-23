@@ -10,6 +10,8 @@ public interface PartnerService {
 
     PartnerResponse createPartner(PartnerRequest request);
 
+    List<PartnerResponse> getAllPartners();
+
     PartnerResponse getPartnerById(UUID partnerId);
 
     List<OrderResponse> getOrdersByPartnerId(UUID partnerId);

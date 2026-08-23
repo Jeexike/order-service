@@ -84,3 +84,24 @@ resilience4j:
         ignore-exceptions:
           - org.springframework.web.client.HttpClientErrorException
           - io.github.resilience4j.ratelimiter.RequestNotPermitted
+
+management:
+  server:
+    port: 8082
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      show-details: when_authorized
+    prometheus:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      percentiles:
+        http.server.requests: 0.5, 0.95, 0.99

@@ -22,12 +22,20 @@ public interface PartnerApi {
     @Operation(summary = "Создать партнера")
     PartnerResponse createPartner(@Valid @RequestBody PartnerRequest request);
 
+    @GetMapping
+    @Operation(summary = "Список всех партнеров")
+    List<PartnerResponse> getAllPartners();
+
+    @GetMapping("/{partnerId}")
+    @Operation(summary = "Получить партнера по ID")
+    PartnerResponse getPartnerById(@PathVariable UUID partnerId);
+
     @GetMapping("/{partnerId}/orders")
     @Operation(summary = "Получить все заказы партнера")
     List<OrderResponse> getOrdersByPartnerId(@PathVariable UUID partnerId);
 
     @DeleteMapping("/{partnerId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Operation(summary = "Удалить партнера (каскадно удалятся его заказы)")
+    @Operation(summary = "Удалить партнера")
     void deletePartner(@PathVariable UUID partnerId);
 }
