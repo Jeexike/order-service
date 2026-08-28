@@ -61,18 +61,13 @@ public class GitHubClient {
 
     @SuppressWarnings("unused")
     private RepoSnapshotData fetchFallback(String link, Throwable ex) {
-        if (ex instanceof InvalidGitHubLinkException inv) {
-            throw inv;
+        if (ex instanceof InvalidGitHubLinkException
+                || ex instanceof RequestNotPermitted
+                || ex instanceof HttpClientErrorException) {
+            throw (RuntimeException) ex;
         }
-        if (ex instanceof RequestNotPermitted rnp) {
-            throw rnp;
-        }
-        if (ex instanceof HttpClientErrorException hce) {
-            throw hce;
-        }
-        log.warn("Resilience fallback triggered for GitHubClient.fetch(link={}): {}", link, ex.toString());
-        Exception cause = ex instanceof Exception e ? e : new RuntimeException(ex);
-        throw new GitHubUnavailableException(link, cause);
+        log.warn("GitHub unavailable for link={}: {}", link, ex.toString());
+        throw new GitHubUnavailableException(link, ex);
     }
 
     private String[] parseOwnerAndRepo(String link) {
