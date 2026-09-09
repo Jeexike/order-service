@@ -12,7 +12,8 @@ public class PartnerMapper {
     public PartnerEntity toPartnerEntity(PartnerRequest request) {
         PartnerEntity entity = new PartnerEntity();
         entity.setName(request.getName());
-        entity.setEmail(request.getEmail());
+        String email = request.getEmail();
+        entity.setEmail(email == null || email.isBlank() ? null : email.trim());
         return entity;
     }
 

@@ -28,6 +28,16 @@ public class PartnerController implements PartnerApi {
     }
 
     @Override
+    public List<PartnerResponse> getAllPartners() {
+        return partnerService.getAllPartners();
+    }
+
+    @Override
+    public PartnerResponse getPartnerById(@PathVariable UUID partnerId) {
+        return partnerService.getPartnerById(partnerId);
+    }
+
+    @Override
     public List<OrderResponse> getOrdersByPartnerId(@PathVariable UUID partnerId) {
         return partnerService.getOrdersByPartnerId(partnerId);
     }

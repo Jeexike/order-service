@@ -1,0 +1,107 @@
+spring:
+  application:
+    name: order-service
+  autoconfigure:
+    exclude: io.github.resilience4j.springboot3.verifier.autoconfigure.SpringBoot3VerifierAutoConfiguration
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.yaml
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+server:
+  port: 8081
+
+repository:
+  type: jpa
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+
+openapi:
+  contact:
+    name: Jeexike
+    email: dima@rozanov.org
+
+github:
+  api:
+    base-url: https://api.github.com
+    token: ${GITHUB_API_TOKEN:}
+
+tracking:
+  thread-pool-size: 5
+  repo-check-rate-ms: 3600000
+  outbox:
+    dispatch-rate-ms: 10000
+    batch-size: 100
+    topic: order.link.changed
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      gitHubApi:
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 15s
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+        record-exceptions:
+          - org.springframework.web.client.ResourceAccessException
+          - org.springframework.web.client.HttpServerErrorException
+        ignore-exceptions:
+          - org.springframework.web.client.HttpClientErrorException
+          - io.github.resilience4j.ratelimiter.RequestNotPermitted
+  ratelimiter:
+    instances:
+      gitHubApi:
+        limit-for-period: 10
+        limit-refresh-period: 1s
+        timeout-duration: 0s
+        register-health-indicator: true
+  retry:
+    instances:
+      gitHubApi:
+        max-attempts: 3
+        wait-duration: 1s
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
+        retry-exceptions:
+          - org.springframework.web.client.ResourceAccessException
+          - org.springframework.web.client.HttpServerErrorException
+        ignore-exceptions:
+          - org.springframework.web.client.HttpClientErrorException
+          - io.github.resilience4j.ratelimiter.RequestNotPermitted
+
+management:
+  server:
+    port: 8082
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      show-details: when_authorized
+    prometheus:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      percentiles:
+        http.server.requests: 0.5, 0.95, 0.99

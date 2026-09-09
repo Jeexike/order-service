@@ -32,14 +32,20 @@ public class PartnerServiceImpl implements PartnerService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
+    public List<PartnerResponse> getAllPartners() {
+        return partnerMapper.toPartnerResponse(partnerRepository.getAllPartners());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public PartnerResponse getPartnerById(UUID partnerId) {
         PartnerEntity partner = partnerRepository.getPartnerById(partnerId);
         return partnerMapper.toPartnerResponse(partner);
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<OrderResponse> getOrdersByPartnerId(UUID partnerId) {
         partnerRepository.getPartnerById(partnerId);
         return orderMapper.toOrderResponse(orderRepository.getOrdersByPartnerId(partnerId));
