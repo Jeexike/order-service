@@ -1,4 +1,4 @@
-# 📦 order-service
+# 📦 task-service
 
 Основной бэкенд-сервис платформы доставки заказов. Хранит партнёров и заказы, отслеживает связанные с заказами GitHub-репозитории и публикует события об изменениях в Kafka.
 
@@ -7,7 +7,7 @@
 ## Как это работает вместе
 
 ```
-Telegram ──▶ bot-service ──REST(resilient)──▶ order-service ──▶ PostgreSQL
+Telegram ──▶ bot-service ──REST(resilient)──▶ task-service ──▶ PostgreSQL
                   ▲                                 │
                   │                                 ▼
                   └──────── Kafka (order.link.changed) ◀── планировщик трекинга
@@ -15,7 +15,7 @@ Telegram ──▶ bot-service ──REST(resilient)──▶ order-service ─�
 ```
 
 1. Клиент (REST или Telegram) создаёт заказ в `bot-service`, указывая ссылку на GitHub-репозиторий.
-2. `bot-service` резилиентно проксирует запрос сюда, в `order-service`, где заказ сохраняется в PostgreSQL.
+2. `bot-service` резилиентно проксирует запрос сюда, в `task-service`, где заказ сохраняется в PostgreSQL.
 3. Фоновый планировщик здесь периодически опрашивает GitHub API по всем заказам и сравнивает состояние репозитория со снапшотом.
 4. При обнаружении изменений событие пишется в транзакционный outbox и асинхронно публикуется в Kafka-топик `order.link.changed`.
 5. `bot-service` потребляет это событие как консьюмер того же топика.
@@ -134,4 +134,4 @@ docker compose up -d
 
 ## Мониторинг
 
-`docker/prometheus/prometheus.yml` собирает метрики с management-порта сервиса; `docker/grafana` содержит готовый provisioning и дашборд `order-service-red.json` с RED-метриками (Rate/Errors/Duration) для HTTP-эндпоинтов.
+`docker/prometheus/prometheus.yml` собирает метрики с management-порта сервиса; `docker/grafana` содержит готовый provisioning и дашборд `task-service-red.json` с RED-метриками (Rate/Errors/Duration) для HTTP-эндпоинтов.
